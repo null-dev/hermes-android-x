@@ -1,0 +1,31 @@
+package com.hermesandroid.bridge.command
+
+/** The closed set of operations the CommandExecutor can run. Extended in later plans. */
+sealed interface Command {
+    /** Liveness + device info. */
+    data object Ping : Command
+
+    /** Read the current accessibility tree. */
+    data class ReadScreen(val includeBounds: Boolean) : Command
+
+    /** Tap by absolute coordinate (x,y) or by a node id from a prior ReadScreen. */
+    data class Tap(val x: Int?, val y: Int?, val nodeId: String?) : Command
+
+    /** Type into the currently focused input field. */
+    data class Type(val text: String, val clearFirst: Boolean) : Command
+}
+
+/** Typed outcome of running a Command. The server maps these onto HTTP responses. */
+sealed class CommandResult {
+    /** Action ran and succeeded. [data] is any Gson-serializable value (or null). */
+    data class Ok(val data: Any?) : CommandResult()
+
+    /** Action ran and failed for an app-level reason (HTTP 200, envelope ok=false). */
+    data class Err(val error: String, val message: String) : CommandResult()
+
+    /** Command exceeded its time budget (HTTP 408). */
+    data class Timeout(val message: String) : CommandResult()
+
+    /** Accessibility service is not connected, so no command can run (HTTP 503). */
+    data object ServiceUnavailable : CommandResult()
+}
