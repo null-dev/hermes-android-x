@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Hermes Bridge</string>
+    <string name="accessibility_description">Lets the Hermes agent read the screen and perform taps, swipes, and text input.</string>
+</resources>
