@@ -1,8 +1,28 @@
 [tools]
 java = "21"
-kotlin = "2.0"
-python = "3.12"
 gradle = "8.6"
+python = "3.12"
 
-[env]
-JAVA_HOME = "{{env.MISE_DATA_DIR}}/installs/java/21/bin/.."
+[tasks.test-py]
+description = "Run Python unit tests"
+run = "python -m pytest tests/ -m 'not device'"
+
+[tasks.test-android]
+description = "Run Android JVM unit tests"
+dir = "android"
+run = "./gradlew testDebugUnitTest"
+
+[tasks.test-device]
+description = "Run instrumented tests on a connected phone (ADB)"
+dir = "android"
+run = "./gradlew connectedDebugAndroidTest"
+
+[tasks.build-apk]
+description = "Assemble the debug APK"
+dir = "android"
+run = "./gradlew assembleDebug"
+
+[tasks.lint]
+description = "Lint Kotlin"
+dir = "android"
+run = "./gradlew lint"
