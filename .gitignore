@@ -1,0 +1,53 @@
+# Android / Gradle
+.gradle/
+build/
+*.apk
+*.aab
+*.aar
+local.properties
+.android/
+captures/
+lint/
+*.keystore
+*.jks
+
+# Kotlin / JVM
+*.class
+*.jar
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+dist/
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+*.cover
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# mise
+.mise/
+.tool-versions
+
+# env
+.env
+.env.*
+!.env.example
+
+# jj
+.jj/
