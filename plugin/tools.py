@@ -81,7 +81,7 @@ async def android_describe_node(client, node_id):
 
 
 async def android_screen_hash(client):
-    """Get a stable hash of the current screen for change detection."""
+    """Get a stable SHA-256 digest of the current screen for change detection."""
     return await _run(client.screen_hash())
 
 
@@ -309,7 +309,7 @@ TOOL_SCHEMAS = [
     {"name": "android_describe_node", "description": "Get full details of a node by id.",
      "parameters": {"type": "object", "properties": {"node_id": {"type": "string"}},
          "required": ["node_id"]}, "handler": android_describe_node},
-    {"name": "android_screen_hash", "description": "Stable hash of the current screen.",
+    {"name": "android_screen_hash", "description": "Stable SHA-256 digest of the current screen.",
      "parameters": {"type": "object", "properties": {}, "required": []},
      "handler": android_screen_hash},
     {"name": "android_diff_screen", "description": "Compare current screen to a prior hash.",

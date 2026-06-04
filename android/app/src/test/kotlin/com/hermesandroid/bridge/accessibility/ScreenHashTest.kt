@@ -23,6 +23,14 @@ class ScreenHashTest {
     }
 
     @Test
+    fun returnsSha256HexDigest() {
+        val hash = ScreenHash.hash(parentOf(leaf("a"), leaf("b")))
+        assertEquals(64, hash.length)
+        assertEquals(hash.lowercase(), hash)
+        assertEquals(true, hash.all { it in '0'..'9' || it in 'a'..'f' })
+    }
+
+    @Test
     fun sensitiveToText() {
         assertNotEquals(ScreenHash.hash(leaf("hello")), ScreenHash.hash(leaf("world")))
     }

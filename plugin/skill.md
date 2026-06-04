@@ -28,7 +28,7 @@ The phone must be on the same LAN or VPN as the agent.
 - `android_screenshot` — capture a PNG screenshot
 - `android_find_nodes` — search the accessibility tree by text/class/id
 - `android_describe_node` — get full details for one node by id
-- `android_screen_hash` — 64-bit hash of the current screen content (change detection)
+- `android_screen_hash` — SHA-256 digest of the current screen content (change detection)
 - `android_diff_screen` — diff two screen hashes / detect changes
 
 ### App management

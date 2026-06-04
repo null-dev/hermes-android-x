@@ -1,5 +1,7 @@
 package com.hermesandroid.bridge.accessibility
 
+import java.security.MessageDigest
+
 /** Pixel bounds of a node on screen. */
 data class NodeBounds(val left: Int, val top: Int, val right: Int, val bottom: Int)
 
@@ -26,26 +28,25 @@ data class ScreenNode(
     val window: WindowInfo? = null,
 )
 
-/** Stable 64-bit FNV-1a content hash of a screen, for change detection. */
+/** Stable SHA-256 content digest of a screen, for change detection. */
 object ScreenHash {
-    private const val FNV_OFFSET = -3750763034362895579L // 0xcbf29ce484222325
-    private const val FNV_PRIME = 1099511628211L
-
     fun hash(root: ScreenNode): String {
-        var h = FNV_OFFSET
+        val digest = MessageDigest.getInstance("SHA-256")
+
         fun mix(s: String?) {
             val str = s ?: ""
-            for (c in str) {
-                h = h xor c.code.toLong()
-                h *= FNV_PRIME
-            }
-            // field separator so "ab"+"c" != "a"+"bc"
-            h = h xor 0x1fL
-            h *= FNV_PRIME
+            digest.update(str.length.toString().toByteArray(Charsets.UTF_8))
+            digest.update(0)
+            digest.update(str.toByteArray(Charsets.UTF_8))
+            digest.update(0)
         }
+
         fun walk(n: ScreenNode) {
             mix(n.text); mix(n.contentDescription); mix(n.className); mix(n.viewId)
             mix(n.window?.type); mix(n.window?.title); mix(n.window?.packageName)
+            mix(n.window?.active?.toString())
+            mix(n.window?.focused?.toString())
+            mix(n.window?.layer?.toString())
             mix(if (n.clickable) "1" else "0")
             mix("${n.bounds.left},${n.bounds.top},${n.bounds.right},${n.bounds.bottom}")
             mix("(") // structure markers make sibling order significant
@@ -53,6 +54,6 @@ object ScreenHash {
             mix(")")
         }
         walk(root)
-        return java.lang.Long.toHexString(h)
+        return digest.digest().joinToString(separator = "") { "%02x".format(it) }
     }
 }

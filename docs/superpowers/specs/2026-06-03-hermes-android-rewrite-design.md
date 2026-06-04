@@ -144,8 +144,8 @@ it. Enforced by convention + review, and covered by recycle unit tests.
 ### 4.4 ScreenReader
 Builds an immutable `ScreenNode` tree snapshot inside the executor, then releases
 all native nodes before returning. Node hashing for `screen_hash` / `diff_screen`
-uses a **stable 64-bit content hash** (FNV-1a or truncated SHA-256 over
-normalized text + class + bounds) — not `Object.hashCode()`, which is 32-bit and
+uses a **stable SHA-256 content digest** over normalized text + class + bounds —
+not `Object.hashCode()`, which is 32-bit and
 collided, causing false "no change" diffs.
 
 `node_id` is a stable identifier assigned during a `/screen` read (index path or
@@ -331,7 +331,7 @@ Each row gets a named regression test (see §10).
 | 10 | `type()` false success | `{ok:false,"no_focused_field"}` when nothing focused |
 | 11 | Unbounded payload OOM | `MAX_BYTES` cap on client; size limits on server |
 | 12 | Temp files never deleted | `tempfile` + session cleanup on teardown |
-| 13 | 32-bit hashCode collisions | Stable 64-bit+ content hash |
+| 13 | 32-bit hashCode collisions | Stable SHA-256 content digest |
 | 14 | NotificationListener.instance null races | Lifecycle-managed reference; readers get 503, not a crash |
 
 ---
