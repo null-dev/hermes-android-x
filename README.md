@@ -1,6 +1,8 @@
 # hermes-android-x
 
-Give your Hermes agent hands on a real Android phone — over your LAN/VPN, no relay.
+Give your Hermes agent hands on a real Android phone.
+
+Re-write of https://github.com/raulvidis/hermes-android, with the goal of improving stability and performance.
 
 ## How it works
 The phone runs a token-authenticated HTTP server (`0.0.0.0:8765`); the agent connects
@@ -18,6 +20,5 @@ directly. All actions serialize through one command queue for reliability.
 - `mise run test-py` — Python unit tests
 - `mise run test-android` — Kotlin unit tests
 - `mise run test-device` — instrumented tests on a connected phone
-- `mise run build-apk` — assemble the debug APK
-
-Trusted networks only: traffic is plaintext HTTP, secured by the token + your LAN/VPN.
+- `mise run build-release-apk` — assemble the release APK
+- `mise run build-debug-apk` — assemble the debug APK
