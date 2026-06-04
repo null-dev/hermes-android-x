@@ -1,8 +1,9 @@
 import functools
 import asyncio
+import inspect
 import json
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import threading
 
 from .client import AndroidClient
 from .config import load_config
@@ -27,14 +28,49 @@ def get_media() -> MediaStore:
     return _media
 
 
-def _run_async(coro):
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(coro)
+class _AsyncRunner:
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._loop: asyncio.AbstractEventLoop | None = None
+        self._thread: threading.Thread | None = None
 
-    with ThreadPoolExecutor(max_workers=1) as executor:
-        return executor.submit(lambda: asyncio.run(coro)).result()
+    def run(self, factory):
+        loop = self._ensure_loop()
+        future = asyncio.run_coroutine_threadsafe(self._call(factory), loop)
+        return future.result()
+
+    def _ensure_loop(self):
+        with self._lock:
+            if (
+                self._loop is not None
+                and not self._loop.is_closed()
+                and self._thread is not None
+                and self._thread.is_alive()
+            ):
+                return self._loop
+
+            ready = threading.Event()
+
+            def run_loop():
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                self._loop = loop
+                ready.set()
+                loop.run_forever()
+
+            self._thread = threading.Thread(target=run_loop, name="hermes-android-plugin", daemon=True)
+            self._thread.start()
+            ready.wait()
+            return self._loop
+
+    async def _call(self, factory):
+        result = factory()
+        if inspect.isawaitable(result):
+            return await result
+        return result
+
+
+_runner = _AsyncRunner()
 
 
 def register(ctx):
@@ -51,7 +87,7 @@ def register(ctx):
         def bound(args=None, _handler=handler, **kwargs):
             del kwargs
             try:
-                result = _run_async(_handler(_get_client(), **(args or {})))
+                result = _runner.run(lambda: _handler(_get_client(), **(args or {})))
             except Exception as e:
                 result = {"ok": False, "error": "plugin_error", "message": str(e)}
             return result if isinstance(result, str) else json.dumps(result)

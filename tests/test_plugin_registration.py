@@ -1,4 +1,6 @@
 import json
+import asyncio
+import threading
 from pathlib import Path
 
 import plugin
@@ -71,6 +73,43 @@ def test_registered_handler_passes_params_to_tool(monkeypatch):
 
     result = ctx.tools[0]["handler"]({"x": 10, "y": 20})
     assert json.loads(result)["data"] == {"x": 10, "y": 20, "node_id": None}
+
+
+def test_registered_handler_creates_and_uses_client_on_same_stable_loop(monkeypatch):
+    calls = []
+
+    def fake_get_client():
+        calls.append(("client", threading.get_ident(), id(asyncio.get_running_loop())))
+        return object()
+
+    async def fake_ping(client):
+        del client
+        calls.append(("handler", threading.get_ident(), id(asyncio.get_running_loop())))
+        return {"ok": True}
+
+    monkeypatch.setattr(plugin, "_get_client", fake_get_client)
+    monkeypatch.setattr(plugin, "TOOL_SCHEMAS", [
+        {
+            "name": "android_ping",
+            "description": "Ping.",
+            "parameters": {"type": "object", "properties": {}, "required": []},
+            "handler": fake_ping,
+        }
+    ])
+
+    ctx = FakeContext()
+    plugin.register(ctx)
+    handler = ctx.tools[0]["handler"]
+
+    assert json.loads(handler({})) == {"ok": True}
+    assert json.loads(handler({})) == {"ok": True}
+
+    assert calls == [
+        ("client", calls[0][1], calls[0][2]),
+        ("handler", calls[0][1], calls[0][2]),
+        ("client", calls[0][1], calls[0][2]),
+        ("handler", calls[0][1], calls[0][2]),
+    ]
 
 
 def test_register_registers_bundled_skill():
