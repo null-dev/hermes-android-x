@@ -2,9 +2,11 @@ import functools
 
 from .client import AndroidClient
 from .config import load_config
+from .media import MediaStore
 from .tools import TOOL_SCHEMAS
 
 _client: AndroidClient | None = None
+_media: MediaStore | None = None
 
 
 def _get_client() -> AndroidClient:
@@ -12,6 +14,13 @@ def _get_client() -> AndroidClient:
     if _client is None:
         _client = AndroidClient(load_config())
     return _client
+
+
+def get_media() -> MediaStore:
+    global _media
+    if _media is None:
+        _media = MediaStore()
+    return _media
 
 
 def register(ctx):

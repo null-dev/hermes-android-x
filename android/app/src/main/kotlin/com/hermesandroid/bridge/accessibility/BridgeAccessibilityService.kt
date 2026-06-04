@@ -2,11 +2,14 @@ package com.hermesandroid.bridge.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.graphics.Bitmap
 import android.graphics.Path
 import android.graphics.Rect
 import android.os.Bundle
+import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import java.io.ByteArrayOutputStream
 import com.hermesandroid.bridge.command.Command
 import com.hermesandroid.bridge.command.CommandExecutor
 import com.hermesandroid.bridge.command.CommandResult
@@ -81,6 +84,11 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             is Command.CurrentApp -> actionExecutor.currentApp()
             is Command.GetApps -> actionExecutor.getApps()
             is Command.Wait -> actionExecutor.waitFor(command)
+            is Command.Screenshot -> {
+                val png = takeScreenshotPng()
+                if (png == null) CommandResult.Err("screenshot_failed", "could not capture screen")
+                else CommandResult.Ok(mapOf("png_base64" to java.util.Base64.getEncoder().encodeToString(png)))
+            }
         }
     }
 
@@ -203,6 +211,30 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             }, null)
             if (!ok && cont.isActive) cont.resume(false)
         }
+
+    override suspend fun takeScreenshotPng(): ByteArray? = suspendCancellableCoroutine { cont ->
+        takeScreenshot(
+            Display.DEFAULT_DISPLAY,
+            java.util.concurrent.Executors.newSingleThreadExecutor(),
+            object : TakeScreenshotCallback {
+                override fun onSuccess(result: ScreenshotResult) {
+                    val bytes = try {
+                        val bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, result.colorSpace)
+                        val out = ByteArrayOutputStream()
+                        bitmap?.compress(Bitmap.CompressFormat.PNG, 100, out)
+                        bitmap?.recycle()
+                        out.toByteArray()
+                    } catch (e: Exception) {
+                        null
+                    } finally {
+                        result.hardwareBuffer.close()
+                    }
+                    if (cont.isActive) cont.resume(bytes)
+                }
+                override fun onFailure(errorCode: Int) { if (cont.isActive) cont.resume(null) }
+            },
+        )
+    }
 
     companion object {
         private val ref = AtomicReference<BridgeAccessibilityService?>(null)

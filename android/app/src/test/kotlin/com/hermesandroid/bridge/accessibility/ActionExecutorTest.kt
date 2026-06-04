@@ -31,6 +31,7 @@ class ActionExecutorTest {
         override fun launchApp(packageName: String) = true
         override fun foregroundPackage(): String? = null
         override fun installedApps(): List<Pair<String, String>> = emptyList()
+        override suspend fun takeScreenshotPng(): ByteArray? = null
     }
 
     @Test

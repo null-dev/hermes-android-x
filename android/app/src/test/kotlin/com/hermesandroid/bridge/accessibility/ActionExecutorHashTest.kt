@@ -18,6 +18,7 @@ private fun fixedTreeActions(tree: ScreenNode) = object : AccessibilityActions {
     override fun launchApp(packageName: String) = true
     override fun foregroundPackage(): String? = null
     override fun installedApps() = emptyList<Pair<String, String>>()
+    override suspend fun takeScreenshotPng(): ByteArray? = null
 }
 
 class ActionExecutorHashTest {

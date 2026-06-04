@@ -171,6 +171,9 @@ class BridgeServer(
                         )
                     }
                 }
+                get("/screenshot") {
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Screenshot) }
+                }
             }
         }.also { it.start(wait = false) }
     }

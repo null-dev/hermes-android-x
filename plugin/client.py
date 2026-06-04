@@ -132,3 +132,6 @@ class AndroidClient:
     async def wait(self, text=None, class_name=None, timeout_ms=5000):
         return await self._request("POST", "/wait",
                                    json={"text": text, "class_name": class_name, "timeout_ms": timeout_ms})
+
+    async def screenshot(self):
+        return await self._request("GET", "/screenshot")

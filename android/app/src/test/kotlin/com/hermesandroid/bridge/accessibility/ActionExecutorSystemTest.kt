@@ -25,6 +25,7 @@ private class SystemActions(
     override fun launchApp(packageName: String): Boolean { launched = packageName; return launchOk }
     override fun foregroundPackage(): String? = fg
     override fun installedApps(): List<Pair<String, String>> = apps
+    override suspend fun takeScreenshotPng(): ByteArray? = null
 }
 
 class ActionExecutorSystemTest {

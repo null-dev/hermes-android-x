@@ -1,3 +1,5 @@
+import sys
+
 from .client import AndroidClient, BridgeError
 
 
@@ -102,6 +104,19 @@ async def android_get_apps(client):
 async def android_wait(client, text=None, class_name=None, timeout_ms=5000):
     """Wait for an element with the given text/class to appear (up to timeout_ms)."""
     return await _run(client.wait(text=text, class_name=class_name, timeout_ms=timeout_ms))
+
+
+async def android_screenshot(client, media=None):
+    """Capture a screenshot; returns a local file path to the PNG."""
+    from .media import MediaStore
+    _plugin = sys.modules[__package__]
+    store = media if media is not None else _plugin.get_media()
+    try:
+        data = await client.screenshot()
+    except BridgeError as e:
+        return {"ok": False, "error": e.error, "message": e.message}
+    path = store.write_base64(data["png_base64"], suffix=".png")
+    return {"ok": True, "data": {"media_path": path}}
 
 
 TOOL_SCHEMAS = [
@@ -210,4 +225,7 @@ TOOL_SCHEMAS = [
          "text": {"type": "string"}, "class_name": {"type": "string"},
          "timeout_ms": {"type": "integer", "default": 5000}}, "required": []},
      "handler": android_wait},
+    {"name": "android_screenshot", "description": "Capture a screenshot (returns a PNG file path).",
+     "parameters": {"type": "object", "properties": {}, "required": []},
+     "handler": android_screenshot},
 ]

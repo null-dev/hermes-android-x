@@ -33,6 +33,8 @@ sealed interface Command {
     data object GetApps : Command
 
     data class Wait(val text: String?, val className: String?, val timeoutMs: Long) : Command
+
+    data object Screenshot : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */

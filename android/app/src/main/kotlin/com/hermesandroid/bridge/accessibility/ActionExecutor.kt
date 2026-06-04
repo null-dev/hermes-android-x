@@ -29,6 +29,9 @@ interface AccessibilityActions {
     fun foregroundPackage(): String?
     /** Installed launchable apps as (label, package). */
     fun installedApps(): List<Pair<String, String>>
+
+    /** PNG bytes of the current screen, or null if capture failed/unsupported. */
+    suspend fun takeScreenshotPng(): ByteArray?
 }
 
 /** Pure command logic for tap/type, delegating Android specifics to [actions]. */
