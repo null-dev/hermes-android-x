@@ -2,6 +2,7 @@ package com.hermesandroid.bridge.accessibility
 
 import com.hermesandroid.bridge.command.Command
 import com.hermesandroid.bridge.command.CommandResult
+import kotlinx.coroutines.delay
 
 /** The Android-side actions ActionExecutor needs; real impl lives in the service. */
 interface AccessibilityActions {
@@ -149,4 +150,18 @@ class ActionExecutor(private val actions: AccessibilityActions) {
     fun getApps(): CommandResult = CommandResult.Ok(
         mapOf("apps" to actions.installedApps().map { mapOf("label" to it.first, "package" to it.second) })
     )
+
+    suspend fun waitFor(cmd: Command.Wait): CommandResult {
+        val pollMs = 250L
+        val attempts = maxOf(1, (cmd.timeoutMs / pollMs).toInt())
+        repeat(attempts) {
+            val tree = actions.readTree(true)
+            if (tree != null) {
+                val hit = NodeSearch.matching(tree, cmd.text, cmd.className, clickableOnly = false).firstOrNull()
+                if (hit != null) return CommandResult.Ok(mapOf("found" to true, "node_id" to hit.id))
+            }
+            delay(pollMs)
+        }
+        return CommandResult.Ok(mapOf("found" to false))
+    }
 }

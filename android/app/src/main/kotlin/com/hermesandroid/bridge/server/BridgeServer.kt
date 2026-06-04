@@ -163,6 +163,14 @@ class BridgeServer(
                 }
                 get("/current_app") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.CurrentApp) } }
                 get("/apps") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.GetApps) } }
+                post("/wait") {
+                    val b = gson.fromJson(call.receiveText(), WaitBody::class.java)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.Wait(b.text, b.class_name, b.timeout_ms ?: 5_000)
+                        )
+                    }
+                }
             }
         }.also { it.start(wait = false) }
     }
@@ -183,6 +191,7 @@ class BridgeServer(
     private data class DiffBody(val hash: String)
     private data class OpenAppBody(val package_name: String)
     private data class PressKeyBody(val key: String)
+    private data class WaitBody(val text: String?, val class_name: String?, val timeout_ms: Long?)
 
     private fun parseDirection(s: String) =
         com.hermesandroid.bridge.accessibility.Direction.valueOf(s.uppercase())

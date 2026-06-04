@@ -99,6 +99,11 @@ async def android_get_apps(client):
     return await _run(client.get_apps())
 
 
+async def android_wait(client, text=None, class_name=None, timeout_ms=5000):
+    """Wait for an element with the given text/class to appear (up to timeout_ms)."""
+    return await _run(client.wait(text=text, class_name=class_name, timeout_ms=timeout_ms))
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -200,4 +205,9 @@ TOOL_SCHEMAS = [
     {"name": "android_get_apps", "description": "List installed launchable apps.",
      "parameters": {"type": "object", "properties": {}, "required": []},
      "handler": android_get_apps},
+    {"name": "android_wait", "description": "Wait for an element to appear.",
+     "parameters": {"type": "object", "properties": {
+         "text": {"type": "string"}, "class_name": {"type": "string"},
+         "timeout_ms": {"type": "integer", "default": 5000}}, "required": []},
+     "handler": android_wait},
 ]

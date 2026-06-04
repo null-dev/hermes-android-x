@@ -128,3 +128,7 @@ class AndroidClient:
 
     async def get_apps(self):
         return await self._request("GET", "/apps")
+
+    async def wait(self, text=None, class_name=None, timeout_ms=5000):
+        return await self._request("POST", "/wait",
+                                   json={"text": text, "class_name": class_name, "timeout_ms": timeout_ms})

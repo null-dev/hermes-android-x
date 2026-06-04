@@ -80,6 +80,7 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             is Command.PressKey -> actionExecutor.pressKey(command)
             is Command.CurrentApp -> actionExecutor.currentApp()
             is Command.GetApps -> actionExecutor.getApps()
+            is Command.Wait -> actionExecutor.waitFor(command)
         }
     }
 
