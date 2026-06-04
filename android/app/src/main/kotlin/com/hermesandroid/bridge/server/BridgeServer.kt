@@ -130,6 +130,22 @@ class BridgeServer(
                         )
                     }
                 }
+                post("/tap_text") {
+                    val b = gson.fromJson(call.receiveText(), TapTextBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.TapText(b.text, b.exact ?: false)) }
+                }
+                get("/find_nodes") {
+                    val q = call.request.queryParameters
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.FindNodes(q["text"], q["class"], q["clickable"]?.toBoolean() ?: false)
+                        )
+                    }
+                }
+                get("/describe_node") {
+                    val id = call.request.queryParameters["node_id"] ?: ""
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.DescribeNode(id)) }
+                }
             }
         }.also { it.start(wait = false) }
     }
@@ -140,6 +156,7 @@ class BridgeServer(
     }
 
     private data class TapBody(val x: Int?, val y: Int?, val node_id: String?)
+    private data class TapTextBody(val text: String, val exact: Boolean?)
     private data class TypeBody(val text: String?, val clear_first: Boolean?)
     private data class LongPressBody(val x: Int?, val y: Int?, val node_id: String?, val duration_ms: Long?)
     private data class DragBody(val from_x: Int, val from_y: Int, val to_x: Int, val to_y: Int, val duration_ms: Long?)

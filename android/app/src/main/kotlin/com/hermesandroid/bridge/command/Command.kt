@@ -19,6 +19,10 @@ sealed interface Command {
     data class Pinch(val x: Int, val y: Int, val scale: Double) : Command
     data class Swipe(val direction: com.hermesandroid.bridge.accessibility.Direction, val distanceFraction: Double) : Command
     data class Scroll(val direction: com.hermesandroid.bridge.accessibility.Direction, val nodeId: String?) : Command
+
+    data class TapText(val text: String, val exact: Boolean) : Command
+    data class FindNodes(val text: String?, val className: String?, val clickableOnly: Boolean) : Command
+    data class DescribeNode(val nodeId: String) : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */

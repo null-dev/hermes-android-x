@@ -98,3 +98,15 @@ class AndroidClient:
 
     async def scroll(self, direction, node_id=None):
         return await self._request("POST", "/scroll", json={"direction": direction, "node_id": node_id})
+
+    async def tap_text(self, text, exact=False):
+        return await self._request("POST", "/tap_text", json={"text": text, "exact": exact})
+
+    async def find_nodes(self, text=None, class_name=None, clickable=False):
+        params = {"clickable": str(clickable).lower()}
+        if text is not None: params["text"] = text
+        if class_name is not None: params["class"] = class_name
+        return await self._request("GET", "/find_nodes", params=params)
+
+    async def describe_node(self, node_id):
+        return await self._request("GET", "/describe_node", params={"node_id": node_id})

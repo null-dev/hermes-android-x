@@ -71,6 +71,9 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             is Command.Pinch -> actionExecutor.pinch(command)
             is Command.Swipe -> actionExecutor.swipe(command)
             is Command.Scroll -> actionExecutor.scroll(command)
+            is Command.TapText -> actionExecutor.tapText(command)
+            is Command.FindNodes -> actionExecutor.findNodes(command)
+            is Command.DescribeNode -> actionExecutor.describeNode(command)
         }
     }
 

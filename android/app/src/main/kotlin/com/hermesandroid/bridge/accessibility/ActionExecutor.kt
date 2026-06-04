@@ -99,4 +99,26 @@ class ActionExecutor(private val actions: AccessibilityActions) {
         return if (actions.swipePath(from.first, from.second, to.first, to.second, 250)) CommandResult.Ok(mapOf("scrolled" to cmd.direction.name))
         else CommandResult.Err("gesture_failed", "scroll not dispatched")
     }
+
+    suspend fun tapText(cmd: Command.TapText): CommandResult {
+        val tree = actions.readTree(true) ?: return CommandResult.ServiceUnavailable
+        val match = NodeSearch.byText(tree, cmd.text, cmd.exact).firstOrNull()
+            ?: return CommandResult.Err("text_not_found", "no node with text '${cmd.text}'")
+        val (x, y) = match.center()
+        return if (actions.tapAt(x, y)) CommandResult.Ok(mapOf("tapped_node" to match.id))
+        else CommandResult.Err("gesture_failed", "tap not dispatched")
+    }
+
+    fun findNodes(cmd: Command.FindNodes): CommandResult {
+        val tree = actions.readTree(true) ?: return CommandResult.ServiceUnavailable
+        val hits = NodeSearch.matching(tree, cmd.text, cmd.className, cmd.clickableOnly)
+        return CommandResult.Ok(mapOf("nodes" to hits))
+    }
+
+    fun describeNode(cmd: Command.DescribeNode): CommandResult {
+        val tree = actions.readTree(true) ?: return CommandResult.ServiceUnavailable
+        val node = NodeSearch.byId(tree, cmd.nodeId)
+            ?: return CommandResult.Err("stale_node", "node ${cmd.nodeId} not on current screen")
+        return CommandResult.Ok(node)
+    }
 }

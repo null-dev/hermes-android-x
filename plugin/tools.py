@@ -54,6 +54,21 @@ async def android_scroll(client, direction, node_id=None):
     return await _run(client.scroll(direction, node_id=node_id))
 
 
+async def android_tap_text(client, text, exact=False):
+    """Tap the first element whose visible text matches."""
+    return await _run(client.tap_text(text, exact=exact))
+
+
+async def android_find_nodes(client, text=None, class_name=None, clickable=False):
+    """Search the screen for nodes by text/class/clickable."""
+    return await _run(client.find_nodes(text=text, class_name=class_name, clickable=clickable))
+
+
+async def android_describe_node(client, node_id):
+    """Get full details of a node by id."""
+    return await _run(client.describe_node(node_id))
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -125,4 +140,16 @@ TOOL_SCHEMAS = [
          "direction": {"type": "string", "enum": ["up", "down", "left", "right"]},
          "node_id": {"type": "string"}}, "required": ["direction"]},
      "handler": android_scroll},
+    {"name": "android_tap_text", "description": "Tap the first element whose visible text matches.",
+     "parameters": {"type": "object", "properties": {
+         "text": {"type": "string"}, "exact": {"type": "boolean", "default": False}},
+         "required": ["text"]}, "handler": android_tap_text},
+    {"name": "android_find_nodes", "description": "Search nodes by text/class/clickable.",
+     "parameters": {"type": "object", "properties": {
+         "text": {"type": "string"}, "class_name": {"type": "string"},
+         "clickable": {"type": "boolean", "default": False}}, "required": []},
+     "handler": android_find_nodes},
+    {"name": "android_describe_node", "description": "Get full details of a node by id.",
+     "parameters": {"type": "object", "properties": {"node_id": {"type": "string"}},
+         "required": ["node_id"]}, "handler": android_describe_node},
 ]
