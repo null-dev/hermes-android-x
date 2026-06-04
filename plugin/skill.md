@@ -26,7 +26,6 @@ The phone must be on the same LAN or VPN as the agent.
 
 ### Screen inspection
 - `android_screenshot` — capture a PNG screenshot
-- `android_screen_record` — record a short screen video
 - `android_find_nodes` — search the accessibility tree by text/class/id
 - `android_describe_node` — get full details for one node by id
 - `android_screen_hash` — 64-bit hash of the current screen content (change detection)

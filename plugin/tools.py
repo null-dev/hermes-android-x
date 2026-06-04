@@ -323,10 +323,13 @@ TOOL_SCHEMAS = [
     {"name": "android_screenshot", "description": "Capture a screenshot (returns a PNG file path).",
      "parameters": {"type": "object", "properties": {}, "required": []},
      "handler": android_screenshot},
-    {"name": "android_screen_record", "description": "Record the screen (returns an MP4 file path).",
-     "parameters": {"type": "object", "properties": {
-         "duration_ms": {"type": "integer", "default": 5000}}, "required": []},
-     "handler": android_screen_record},
+    # Temporarily disabled: Android 14+ requires fresh MediaProjection consent for
+    # each independent recording session. Re-enable after designing a compliant
+    # one-shot or live-capture-session flow.
+    # {"name": "android_screen_record", "description": "Record the screen (returns an MP4 file path).",
+    #  "parameters": {"type": "object", "properties": {
+    #      "duration_ms": {"type": "integer", "default": 5000}}, "required": []},
+    #  "handler": android_screen_record},
     {"name": "android_clipboard_read", "description": "Read the clipboard.",
      "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_clipboard_read},
     {"name": "android_clipboard_write", "description": "Write text to the clipboard.",
