@@ -27,10 +27,12 @@ class BridgeForegroundService : Service() {
         if (server == null) {
             server = BridgeServer(PORT, token).also { it.start() }
         }
+        isRunning = true
         return START_STICKY
     }
 
     override fun onDestroy() {
+        isRunning = false
         stopForeground(STOP_FOREGROUND_REMOVE)
         server?.stop()
         server = null
@@ -58,6 +60,9 @@ class BridgeForegroundService : Service() {
         const val PORT = 8765
         private const val CHANNEL = "hermes_bridge"
         private const val NOTIF_ID = 1
+
+        @Volatile var isRunning = false
+            private set
 
         fun start(context: Context) {
             val intent = Intent(context, BridgeForegroundService::class.java)

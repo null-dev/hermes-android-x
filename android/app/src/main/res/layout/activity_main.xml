@@ -1,28 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
-    <TextView android:id="@+id/tvUrl"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textIsSelectable="true" android:text="URL: —" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <TextView android:id="@+id/tvToken"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:textIsSelectable="true" android:text="Token: —"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hermes Bridge"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
-    <Button android:id="@+id/btnStart"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Start bridge" android:layout_marginTop="16dp" />
+        <!-- Status row -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    <Button android:id="@+id/btnAccessibility"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Enable accessibility" android:layout_marginTop="8dp" />
+            <TextView
+                android:id="@+id/tvStatusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● STOPPED"
+                android:textSize="14sp" />
+        </LinearLayout>
 
-    <Button android:id="@+id/btnScreenRecord"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="Grant screen recording" android:layout_marginTop="8dp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/tvUrls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textIsSelectable="true"
+            android:fontFamily="monospace"
+            android:text="http://—:8765" />
+
+        <TextView
+            android:id="@+id/tvToken"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textIsSelectable="true"
+            android:fontFamily="monospace"
+            android:text="Token: —" />
+
+        <Button
+            android:id="@+id/btnToggleBridge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Start bridge" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp"
+            android:background="?android:attr/listDivider" />
+
+        <Button
+            android:id="@+id/btnPermissions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Permissions" />
+
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Settings" />
+
+    </LinearLayout>
+</ScrollView>
