@@ -138,3 +138,36 @@ class AndroidClient:
 
     async def screen_record(self, duration_ms=5000):
         return await self._request("POST", "/screen_record", json={"duration_ms": duration_ms})
+
+    async def clipboard_read(self):
+        return await self._request("GET", "/clipboard")
+
+    async def clipboard_write(self, text):
+        return await self._request("POST", "/clipboard", json={"text": text})
+
+    async def send_intent(self, action, data=None, extras=None):
+        return await self._request("POST", "/intent", json={"action": action, "data": data, "extras": extras or {}})
+
+    async def broadcast(self, action, extras=None):
+        return await self._request("POST", "/broadcast", json={"action": action, "extras": extras or {}})
+
+    async def send_sms(self, number, text):
+        return await self._request("POST", "/sms", json={"number": number, "text": text})
+
+    async def call(self, number):
+        return await self._request("POST", "/call", json={"number": number})
+
+    async def search_contacts(self, query):
+        return await self._request("GET", "/contacts", params={"q": query})
+
+    async def location(self):
+        return await self._request("GET", "/location")
+
+    async def media(self, action):
+        return await self._request("POST", "/media", json={"action": action})
+
+    async def speak(self, text):
+        return await self._request("POST", "/speak", json={"text": text})
+
+    async def speak_stop(self):
+        return await self._request("POST", "/speak/stop", json={})

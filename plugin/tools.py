@@ -131,6 +131,61 @@ async def android_screen_record(client, duration_ms=5000, media=None):
     return {"ok": True, "data": {"media_path": path}}
 
 
+async def android_clipboard_read(client):
+    """Read the clipboard."""
+    return await _run(client.clipboard_read())
+
+
+async def android_clipboard_write(client, text):
+    """Write text to the clipboard."""
+    return await _run(client.clipboard_write(text))
+
+
+async def android_send_intent(client, action, data=None, extras=None):
+    """Send an Android intent."""
+    return await _run(client.send_intent(action, data=data, extras=extras))
+
+
+async def android_broadcast(client, action, extras=None):
+    """Send a broadcast intent."""
+    return await _run(client.broadcast(action, extras=extras))
+
+
+async def android_send_sms(client, number, text):
+    """Send an SMS (telephony devices only)."""
+    return await _run(client.send_sms(number, text))
+
+
+async def android_call(client, number):
+    """Start a phone call (telephony devices only)."""
+    return await _run(client.call(number))
+
+
+async def android_search_contacts(client, query):
+    """Search contacts by name."""
+    return await _run(client.search_contacts(query))
+
+
+async def android_location(client):
+    """Get the phone's last known location."""
+    return await _run(client.location())
+
+
+async def android_media(client, action):
+    """Control media playback: play, pause, play_pause, next, previous, stop."""
+    return await _run(client.media(action))
+
+
+async def android_speak(client, text):
+    """Speak text aloud via TTS."""
+    return await _run(client.speak(text))
+
+
+async def android_speak_stop(client):
+    """Stop any in-progress TTS."""
+    return await _run(client.speak_stop())
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -244,4 +299,37 @@ TOOL_SCHEMAS = [
      "parameters": {"type": "object", "properties": {
          "duration_ms": {"type": "integer", "default": 5000}}, "required": []},
      "handler": android_screen_record},
+    {"name": "android_clipboard_read", "description": "Read the clipboard.",
+     "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_clipboard_read},
+    {"name": "android_clipboard_write", "description": "Write text to the clipboard.",
+     "parameters": {"type": "object", "properties": {"text": {"type": "string"}}, "required": ["text"]},
+     "handler": android_clipboard_write},
+    {"name": "android_send_intent", "description": "Send an Android intent.",
+     "parameters": {"type": "object", "properties": {
+         "action": {"type": "string"}, "data": {"type": "string"},
+         "extras": {"type": "object"}}, "required": ["action"]}, "handler": android_send_intent},
+    {"name": "android_broadcast", "description": "Send a broadcast intent.",
+     "parameters": {"type": "object", "properties": {
+         "action": {"type": "string"}, "extras": {"type": "object"}}, "required": ["action"]},
+     "handler": android_broadcast},
+    {"name": "android_send_sms", "description": "Send an SMS (telephony only).",
+     "parameters": {"type": "object", "properties": {
+         "number": {"type": "string"}, "text": {"type": "string"}}, "required": ["number", "text"]},
+     "handler": android_send_sms},
+    {"name": "android_call", "description": "Start a phone call (telephony only).",
+     "parameters": {"type": "object", "properties": {"number": {"type": "string"}}, "required": ["number"]},
+     "handler": android_call},
+    {"name": "android_search_contacts", "description": "Search contacts by name.",
+     "parameters": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},
+     "handler": android_search_contacts},
+    {"name": "android_location", "description": "Get last known location.",
+     "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_location},
+    {"name": "android_media", "description": "Control media playback.",
+     "parameters": {"type": "object", "properties": {"action": {"type": "string"}}, "required": ["action"]},
+     "handler": android_media},
+    {"name": "android_speak", "description": "Speak text via TTS.",
+     "parameters": {"type": "object", "properties": {"text": {"type": "string"}}, "required": ["text"]},
+     "handler": android_speak},
+    {"name": "android_speak_stop", "description": "Stop TTS.",
+     "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_speak_stop},
 ]

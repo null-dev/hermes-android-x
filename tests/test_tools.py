@@ -64,4 +64,7 @@ def test_schemas_cover_all_tools():
         "android_screen_hash", "android_diff_screen",
         "android_open_app", "android_press_key", "android_current_app", "android_get_apps",
         "android_wait", "android_screenshot", "android_screen_record",
+        "android_clipboard_read", "android_clipboard_write", "android_send_intent",
+        "android_broadcast", "android_send_sms", "android_call", "android_search_contacts",
+        "android_location", "android_media", "android_speak", "android_speak_stop",
     }
