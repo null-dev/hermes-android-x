@@ -1,6 +1,7 @@
 package com.hermesandroid.bridge.accessibility
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class ScreenWindowSelectorTest {
@@ -49,5 +50,41 @@ class ScreenWindowSelectorTest {
         val overlay = ScreenWindow(ScreenWindowType.OTHER, isActive = false, isFocused = true, root = FakeNode("overlay"))
 
         assertEquals(listOf(system), ScreenWindowSelector.select(listOf(overlay, system), includeSystemUi = false))
+    }
+
+    @Test
+    fun singleSelectedWindowAddsMetadataToRoot() {
+        val app = ScreenWindow(
+            type = ScreenWindowType.APPLICATION,
+            isActive = true,
+            isFocused = false,
+            layer = 3,
+            title = "Calculator",
+            rootPackageName = "com.android.calculator2",
+            root = FakeNode("app"),
+        )
+
+        val tree = ScreenReader.readWindows(listOf(app), includeBounds = true)
+
+        assertEquals("application", tree!!.window?.type)
+        assertEquals(true, tree.window?.active)
+        assertEquals(false, tree.window?.focused)
+        assertEquals(3, tree.window?.layer)
+        assertEquals("Calculator", tree.window?.title)
+        assertEquals("com.android.calculator2", tree.window?.packageName)
+    }
+
+    @Test
+    fun multipleWindowsAddMetadataToEachWindowChildOnly() {
+        val app = ScreenWindow(ScreenWindowType.APPLICATION, isActive = true, isFocused = true, layer = 2, root = FakeNode("app"))
+        val system = ScreenWindow(ScreenWindowType.SYSTEM, isActive = false, isFocused = false, layer = 9, root = FakeNode("system"))
+
+        val tree = ScreenReader.readWindows(listOf(app, system), includeBounds = true)
+
+        assertNull(tree!!.window)
+        assertEquals("application", tree.children[0].window?.type)
+        assertEquals(2, tree.children[0].window?.layer)
+        assertEquals("system", tree.children[1].window?.type)
+        assertEquals(9, tree.children[1].window?.layer)
     }
 }

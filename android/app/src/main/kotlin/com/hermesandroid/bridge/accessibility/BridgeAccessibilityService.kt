@@ -218,9 +218,8 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
                 .filterNot { it in selectedSet }
                 .forEach { it.root?.recycle() }
 
-            val selectedRoots = selectedWindows.mapNotNull { it.root }
-            if (selectedRoots.isNotEmpty()) {
-                return@withWindows ScreenReader.readRoots(selectedRoots, includeBounds)
+            if (selectedWindows.isNotEmpty()) {
+                return@withWindows ScreenReader.readWindows(selectedWindows, includeBounds)
             }
 
             val root = rootInActiveWindow ?: return@withWindows null
@@ -230,6 +229,7 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
 
     private fun screenWindows(windows: List<AccessibilityWindowInfo>): List<ScreenWindow> =
         windows.map { window ->
+            val root = window.root
             ScreenWindow(
                 type = when (window.type) {
                     AccessibilityWindowInfo.TYPE_APPLICATION -> ScreenWindowType.APPLICATION
@@ -239,7 +239,10 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
                 },
                 isActive = window.isActive,
                 isFocused = window.isFocused,
-                root = window.root?.let { AndroidNodeView(it) },
+                layer = window.layer,
+                title = window.title?.toString(),
+                rootPackageName = root?.packageName?.toString(),
+                root = root?.let { AndroidNodeView(it) },
             )
         }
 

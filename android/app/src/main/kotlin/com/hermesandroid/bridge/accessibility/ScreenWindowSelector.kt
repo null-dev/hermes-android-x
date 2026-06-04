@@ -6,8 +6,24 @@ data class ScreenWindow(
     val type: ScreenWindowType,
     val isActive: Boolean,
     val isFocused: Boolean,
+    val layer: Int = 0,
+    val title: String? = null,
+    val rootPackageName: String? = null,
     val root: NodeView?,
-)
+) {
+    fun toWindowInfo(): WindowInfo = WindowInfo(
+        type = when (type) {
+            ScreenWindowType.APPLICATION -> "application"
+            ScreenWindowType.SYSTEM -> "system"
+            ScreenWindowType.OTHER -> "other"
+        },
+        active = isActive,
+        focused = isFocused,
+        layer = layer,
+        title = title,
+        packageName = rootPackageName,
+    )
+}
 
 object ScreenWindowSelector {
     fun select(windows: List<ScreenWindow>, includeSystemUi: Boolean): List<ScreenWindow> {

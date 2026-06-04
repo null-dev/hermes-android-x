@@ -22,6 +22,30 @@ object ScreenReader {
         )
     }
 
+    fun readWindows(windows: List<ScreenWindow>, includeBounds: Boolean): ScreenNode? {
+        val rooted = windows.filter { it.root != null }
+        if (rooted.isEmpty()) return null
+        if (rooted.size == 1) {
+            val window = rooted.single()
+            return build(window.root!!, "0", includeBounds, window.toWindowInfo())
+        }
+
+        val children = rooted.mapIndexed { i, window ->
+            build(window.root!!, "0.$i", includeBounds, window.toWindowInfo())
+        }
+        val bounds = if (includeBounds) unionBounds(children) else NodeBounds(0, 0, 0, 0)
+        return ScreenNode(
+            id = "0",
+            text = null,
+            contentDescription = null,
+            className = "android.view.WindowRoot",
+            viewId = null,
+            clickable = false,
+            bounds = bounds,
+            children = children,
+        )
+    }
+
     private fun unionBounds(nodes: List<ScreenNode>): NodeBounds {
         val left = nodes.minOf { it.bounds.left }
         val top = nodes.minOf { it.bounds.top }
@@ -30,7 +54,12 @@ object ScreenReader {
         return NodeBounds(left, top, right, bottom)
     }
 
-    private fun build(view: NodeView, id: String, includeBounds: Boolean): ScreenNode {
+    private fun build(
+        view: NodeView,
+        id: String,
+        includeBounds: Boolean,
+        window: WindowInfo? = null,
+    ): ScreenNode {
         try {
             val children = ArrayList<ScreenNode>(view.childCount)
             for (i in 0 until view.childCount) {
@@ -46,6 +75,7 @@ object ScreenReader {
                 clickable = view.clickable,
                 bounds = if (includeBounds) view.bounds else NodeBounds(0, 0, 0, 0),
                 children = children,
+                window = window,
             )
         } finally {
             view.recycle()

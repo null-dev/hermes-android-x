@@ -3,6 +3,16 @@ package com.hermesandroid.bridge.accessibility
 /** Pixel bounds of a node on screen. */
 data class NodeBounds(val left: Int, val top: Int, val right: Int, val bottom: Int)
 
+/** Metadata for the accessibility window that owns a top-level screen subtree. */
+data class WindowInfo(
+    val type: String,
+    val active: Boolean,
+    val focused: Boolean,
+    val layer: Int,
+    val title: String?,
+    val packageName: String?,
+)
+
 /** Immutable snapshot of one accessibility node and its subtree. */
 data class ScreenNode(
     val id: String,
@@ -13,6 +23,7 @@ data class ScreenNode(
     val clickable: Boolean,
     val bounds: NodeBounds,
     val children: List<ScreenNode>,
+    val window: WindowInfo? = null,
 )
 
 /** Stable 64-bit FNV-1a content hash of a screen, for change detection. */
@@ -34,6 +45,7 @@ object ScreenHash {
         }
         fun walk(n: ScreenNode) {
             mix(n.text); mix(n.contentDescription); mix(n.className); mix(n.viewId)
+            mix(n.window?.type); mix(n.window?.title); mix(n.window?.packageName)
             mix(if (n.clickable) "1" else "0")
             mix("${n.bounds.left},${n.bounds.top},${n.bounds.right},${n.bounds.bottom}")
             mix("(") // structure markers make sibling order significant
