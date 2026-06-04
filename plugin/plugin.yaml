@@ -1,0 +1,7 @@
+name: hermes-android
+version: 1.0.0
+description: Direct-HTTP Android device control for the Hermes agent.
+entrypoint: __init__.register
+env:
+  - ANDROID_BRIDGE_URL
+  - ANDROID_BRIDGE_TOKEN
