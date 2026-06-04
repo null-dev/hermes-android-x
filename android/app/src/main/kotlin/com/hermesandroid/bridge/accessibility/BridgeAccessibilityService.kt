@@ -74,6 +74,8 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             is Command.TapText -> actionExecutor.tapText(command)
             is Command.FindNodes -> actionExecutor.findNodes(command)
             is Command.DescribeNode -> actionExecutor.describeNode(command)
+            is Command.ScreenHashCmd -> actionExecutor.screenHash()
+            is Command.DiffScreen -> actionExecutor.diffScreen(command)
         }
     }
 

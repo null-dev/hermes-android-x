@@ -121,4 +121,15 @@ class ActionExecutor(private val actions: AccessibilityActions) {
             ?: return CommandResult.Err("stale_node", "node ${cmd.nodeId} not on current screen")
         return CommandResult.Ok(node)
     }
+
+    fun screenHash(): CommandResult {
+        val tree = actions.readTree(true) ?: return CommandResult.ServiceUnavailable
+        return CommandResult.Ok(mapOf("hash" to ScreenHash.hash(tree)))
+    }
+
+    fun diffScreen(cmd: Command.DiffScreen): CommandResult {
+        val tree = actions.readTree(true) ?: return CommandResult.ServiceUnavailable
+        val current = ScreenHash.hash(tree)
+        return CommandResult.Ok(mapOf("changed" to (current != cmd.previousHash), "hash" to current))
+    }
 }

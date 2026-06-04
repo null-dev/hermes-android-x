@@ -23,6 +23,9 @@ sealed interface Command {
     data class TapText(val text: String, val exact: Boolean) : Command
     data class FindNodes(val text: String?, val className: String?, val clickableOnly: Boolean) : Command
     data class DescribeNode(val nodeId: String) : Command
+
+    data object ScreenHashCmd : Command
+    data class DiffScreen(val previousHash: String) : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */

@@ -110,3 +110,9 @@ class AndroidClient:
 
     async def describe_node(self, node_id):
         return await self._request("GET", "/describe_node", params={"node_id": node_id})
+
+    async def screen_hash(self):
+        return await self._request("GET", "/screen_hash")
+
+    async def diff_screen(self, previous_hash):
+        return await self._request("POST", "/diff_screen", json={"hash": previous_hash})

@@ -146,6 +146,13 @@ class BridgeServer(
                     val id = call.request.queryParameters["node_id"] ?: ""
                     call.guarded { BridgeAccessibilityService.current()!!.submit(Command.DescribeNode(id)) }
                 }
+                get("/screen_hash") {
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.ScreenHashCmd) }
+                }
+                post("/diff_screen") {
+                    val b = gson.fromJson(call.receiveText(), DiffBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.DiffScreen(b.hash)) }
+                }
             }
         }.also { it.start(wait = false) }
     }
@@ -163,6 +170,7 @@ class BridgeServer(
     private data class PinchBody(val x: Int, val y: Int, val scale: Double)
     private data class SwipeBody(val direction: String, val distance: Double?)
     private data class ScrollBody(val direction: String, val node_id: String?)
+    private data class DiffBody(val hash: String)
 
     private fun parseDirection(s: String) =
         com.hermesandroid.bridge.accessibility.Direction.valueOf(s.uppercase())

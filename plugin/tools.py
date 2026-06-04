@@ -69,6 +69,16 @@ async def android_describe_node(client, node_id):
     return await _run(client.describe_node(node_id))
 
 
+async def android_screen_hash(client):
+    """Get a stable hash of the current screen for change detection."""
+    return await _run(client.screen_hash())
+
+
+async def android_diff_screen(client, hash):
+    """Compare the current screen against a previously captured hash."""
+    return await _run(client.diff_screen(hash))
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -152,4 +162,10 @@ TOOL_SCHEMAS = [
     {"name": "android_describe_node", "description": "Get full details of a node by id.",
      "parameters": {"type": "object", "properties": {"node_id": {"type": "string"}},
          "required": ["node_id"]}, "handler": android_describe_node},
+    {"name": "android_screen_hash", "description": "Stable hash of the current screen.",
+     "parameters": {"type": "object", "properties": {}, "required": []},
+     "handler": android_screen_hash},
+    {"name": "android_diff_screen", "description": "Compare current screen to a prior hash.",
+     "parameters": {"type": "object", "properties": {"hash": {"type": "string"}},
+         "required": ["hash"]}, "handler": android_diff_screen},
 ]
