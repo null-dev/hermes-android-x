@@ -76,6 +76,10 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             is Command.DescribeNode -> actionExecutor.describeNode(command)
             is Command.ScreenHashCmd -> actionExecutor.screenHash()
             is Command.DiffScreen -> actionExecutor.diffScreen(command)
+            is Command.OpenApp -> actionExecutor.openApp(command)
+            is Command.PressKey -> actionExecutor.pressKey(command)
+            is Command.CurrentApp -> actionExecutor.currentApp()
+            is Command.GetApps -> actionExecutor.getApps()
         }
     }
 

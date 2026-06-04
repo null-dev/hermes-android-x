@@ -26,6 +26,11 @@ sealed interface Command {
 
     data object ScreenHashCmd : Command
     data class DiffScreen(val previousHash: String) : Command
+
+    data class OpenApp(val packageName: String) : Command
+    data class PressKey(val key: String) : Command
+    data object CurrentApp : Command
+    data object GetApps : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */

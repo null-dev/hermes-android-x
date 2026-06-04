@@ -132,4 +132,21 @@ class ActionExecutor(private val actions: AccessibilityActions) {
         val current = ScreenHash.hash(tree)
         return CommandResult.Ok(mapOf("changed" to (current != cmd.previousHash), "hash" to current))
     }
+
+    fun pressKey(cmd: Command.PressKey): CommandResult {
+        val action = KeyMap.globalAction(cmd.key)
+            ?: return CommandResult.Err("unknown_key", "no such key '${cmd.key}'")
+        return if (actions.pressGlobal(action)) CommandResult.Ok(mapOf("pressed" to cmd.key))
+        else CommandResult.Err("action_failed", "global action not performed")
+    }
+
+    fun openApp(cmd: Command.OpenApp): CommandResult =
+        if (actions.launchApp(cmd.packageName)) CommandResult.Ok(mapOf("opened" to cmd.packageName))
+        else CommandResult.Err("app_not_found", "no launchable app '${cmd.packageName}'")
+
+    fun currentApp(): CommandResult = CommandResult.Ok(mapOf("package" to actions.foregroundPackage()))
+
+    fun getApps(): CommandResult = CommandResult.Ok(
+        mapOf("apps" to actions.installedApps().map { mapOf("label" to it.first, "package" to it.second) })
+    )
 }

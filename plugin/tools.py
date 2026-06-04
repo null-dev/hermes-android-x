@@ -79,6 +79,26 @@ async def android_diff_screen(client, hash):
     return await _run(client.diff_screen(hash))
 
 
+async def android_open_app(client, package):
+    """Launch an app by package name."""
+    return await _run(client.open_app(package))
+
+
+async def android_press_key(client, key):
+    """Press a system key: back, home, recents, notifications, quick_settings, power_dialog, lock_screen."""
+    return await _run(client.press_key(key))
+
+
+async def android_current_app(client):
+    """Get the foreground app's package name."""
+    return await _run(client.current_app())
+
+
+async def android_get_apps(client):
+    """List installed launchable apps."""
+    return await _run(client.get_apps())
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -168,4 +188,16 @@ TOOL_SCHEMAS = [
     {"name": "android_diff_screen", "description": "Compare current screen to a prior hash.",
      "parameters": {"type": "object", "properties": {"hash": {"type": "string"}},
          "required": ["hash"]}, "handler": android_diff_screen},
+    {"name": "android_open_app", "description": "Launch an app by package name.",
+     "parameters": {"type": "object", "properties": {"package": {"type": "string"}},
+         "required": ["package"]}, "handler": android_open_app},
+    {"name": "android_press_key", "description": "Press a system key (back/home/recents/...).",
+     "parameters": {"type": "object", "properties": {"key": {"type": "string"}},
+         "required": ["key"]}, "handler": android_press_key},
+    {"name": "android_current_app", "description": "Foreground app package name.",
+     "parameters": {"type": "object", "properties": {}, "required": []},
+     "handler": android_current_app},
+    {"name": "android_get_apps", "description": "List installed launchable apps.",
+     "parameters": {"type": "object", "properties": {}, "required": []},
+     "handler": android_get_apps},
 ]

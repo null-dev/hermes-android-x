@@ -116,3 +116,15 @@ class AndroidClient:
 
     async def diff_screen(self, previous_hash):
         return await self._request("POST", "/diff_screen", json={"hash": previous_hash})
+
+    async def open_app(self, package):
+        return await self._request("POST", "/open_app", json={"package_name": package})
+
+    async def press_key(self, key):
+        return await self._request("POST", "/press_key", json={"key": key})
+
+    async def current_app(self):
+        return await self._request("GET", "/current_app")
+
+    async def get_apps(self):
+        return await self._request("GET", "/apps")

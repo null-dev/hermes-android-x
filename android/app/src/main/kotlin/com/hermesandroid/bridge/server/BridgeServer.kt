@@ -153,6 +153,16 @@ class BridgeServer(
                     val b = gson.fromJson(call.receiveText(), DiffBody::class.java)
                     call.guarded { BridgeAccessibilityService.current()!!.submit(Command.DiffScreen(b.hash)) }
                 }
+                post("/open_app") {
+                    val b = gson.fromJson(call.receiveText(), OpenAppBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.OpenApp(b.package_name)) }
+                }
+                post("/press_key") {
+                    val b = gson.fromJson(call.receiveText(), PressKeyBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.PressKey(b.key)) }
+                }
+                get("/current_app") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.CurrentApp) } }
+                get("/apps") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.GetApps) } }
             }
         }.also { it.start(wait = false) }
     }
@@ -171,6 +181,8 @@ class BridgeServer(
     private data class SwipeBody(val direction: String, val distance: Double?)
     private data class ScrollBody(val direction: String, val node_id: String?)
     private data class DiffBody(val hash: String)
+    private data class OpenAppBody(val package_name: String)
+    private data class PressKeyBody(val key: String)
 
     private fun parseDirection(s: String) =
         com.hermesandroid.bridge.accessibility.Direction.valueOf(s.uppercase())
