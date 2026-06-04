@@ -1,3 +1,13 @@
+---
+name: android
+description: Control an Android phone remotely - navigate apps, tap, type and swipe
+version: 1.0.0
+metadata:
+  hermes:
+    tags: [android, phone, automation, accessibility]
+    category: android
+---
+
 # Android control
 
 Control a paired Android phone over your local network.
