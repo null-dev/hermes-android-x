@@ -6,7 +6,7 @@ sealed interface Command {
     data object Ping : Command
 
     /** Read the current accessibility tree. */
-    data class ReadScreen(val includeBounds: Boolean) : Command
+    data class ReadScreen(val includeBounds: Boolean, val includeSystemUi: Boolean = false) : Command
 
     /** Tap by absolute coordinate (x,y) or by a node id from a prior ReadScreen. */
     data class Tap(val x: Int?, val y: Int?, val nodeId: String?) : Command

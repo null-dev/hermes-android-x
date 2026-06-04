@@ -75,7 +75,13 @@ class BridgeServer(
                 }
                 get("/screen") {
                     val bounds = call.request.queryParameters["bounds"]?.toBoolean() ?: true
-                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.ReadScreen(bounds)) }
+                    val includeSystemUi =
+                        call.request.queryParameters["include_system_ui"]?.toBoolean() ?: false
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.ReadScreen(bounds, includeSystemUi)
+                        )
+                    }
                 }
                 post("/tap") {
                     val body = gson.fromJson(call.receiveText(), TapBody::class.java)

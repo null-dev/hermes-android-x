@@ -46,12 +46,26 @@ async def test_type_no_focused_field_surfaced(httpx_mock):
     await client.aclose()
 
 
-async def test_read_screen_returns_tree(httpx_mock):
+async def test_read_screen_defaults_to_app_nodes_only(httpx_mock):
     tree = {"id": "0", "children": [{"id": "0.0", "children": []}]}
-    httpx_mock.add_response(url="http://phone:8765/screen?bounds=true", json={"ok": True, "data": tree})
+    httpx_mock.add_response(
+        url="http://phone:8765/screen?bounds=true&include_system_ui=false",
+        json={"ok": True, "data": tree},
+    )
     client = AndroidClient(cfg())
     result = await tools.android_read_screen(client)
     assert result == {"ok": True, "data": tree}
+    await client.aclose()
+
+
+async def test_read_screen_can_include_system_ui(httpx_mock):
+    httpx_mock.add_response(
+        url="http://phone:8765/screen?bounds=false&include_system_ui=true",
+        json={"ok": True, "data": {"id": "0", "children": []}},
+    )
+    client = AndroidClient(cfg())
+    result = await tools.android_read_screen(client, include_bounds=False, include_system_ui=True)
+    assert result["ok"] is True
     await client.aclose()
 
 

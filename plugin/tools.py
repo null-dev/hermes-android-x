@@ -16,9 +16,18 @@ async def android_ping(client: AndroidClient):
     return await _run(client.ping())
 
 
-async def android_read_screen(client: AndroidClient, include_bounds: bool = True):
-    """Read the accessibility tree of the current screen."""
-    return await _run(client.read_screen(include_bounds=include_bounds))
+async def android_read_screen(
+    client: AndroidClient,
+    include_bounds: bool = True,
+    include_system_ui: bool = False,
+):
+    """Read the active app accessibility tree; optionally include system UI windows."""
+    return await _run(
+        client.read_screen(
+            include_bounds=include_bounds,
+            include_system_ui=include_system_ui,
+        )
+    )
 
 
 async def android_tap(client: AndroidClient, x=None, y=None, node_id=None):
@@ -223,10 +232,13 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "android_read_screen",
-        "description": "Read the accessibility tree of the current screen.",
+        "description": "Read the active app accessibility tree. Set include_system_ui=true to include system UI windows.",
         "parameters": {
             "type": "object",
-            "properties": {"include_bounds": {"type": "boolean", "default": True}},
+            "properties": {
+                "include_bounds": {"type": "boolean", "default": True},
+                "include_system_ui": {"type": "boolean", "default": False},
+            },
             "required": [],
         },
         "handler": android_read_screen,

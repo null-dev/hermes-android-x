@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.Display
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.accessibility.AccessibilityWindowInfo
 import java.io.ByteArrayOutputStream
 import com.hermesandroid.bridge.command.Command
 import com.hermesandroid.bridge.command.CommandExecutor
@@ -80,9 +81,9 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
                 )
             )
             is Command.ReadScreen -> {
-                val root = rootInActiveWindow
+                val tree = readScreen(command.includeBounds, command.includeSystemUi)
                     ?: return CommandResult.ServiceUnavailable
-                CommandResult.Ok(ScreenReader.read(AndroidNodeView(root), command.includeBounds))
+                CommandResult.Ok(tree)
             }
             is Command.Tap -> actionExecutor.tap(command)
             is Command.Type -> actionExecutor.type(command)
@@ -206,6 +207,41 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
         val root = rootInActiveWindow ?: return null
         return ScreenReader.read(AndroidNodeView(root), includeBounds)
     }
+
+    private fun readScreen(includeBounds: Boolean, includeSystemUi: Boolean): ScreenNode? {
+        val currentWindows = windows
+        return withWindows(currentWindows) {
+            val candidateWindows = screenWindows(currentWindows)
+            val selectedWindows = ScreenWindowSelector.select(candidateWindows, includeSystemUi)
+            val selectedSet = selectedWindows.toSet()
+            candidateWindows
+                .filterNot { it in selectedSet }
+                .forEach { it.root?.recycle() }
+
+            val selectedRoots = selectedWindows.mapNotNull { it.root }
+            if (selectedRoots.isNotEmpty()) {
+                return@withWindows ScreenReader.readRoots(selectedRoots, includeBounds)
+            }
+
+            val root = rootInActiveWindow ?: return@withWindows null
+            ScreenReader.read(AndroidNodeView(root), includeBounds)
+        }
+    }
+
+    private fun screenWindows(windows: List<AccessibilityWindowInfo>): List<ScreenWindow> =
+        windows.map { window ->
+            ScreenWindow(
+                type = when (window.type) {
+                    AccessibilityWindowInfo.TYPE_APPLICATION -> ScreenWindowType.APPLICATION
+                    AccessibilityWindowInfo.TYPE_SYSTEM,
+                    AccessibilityWindowInfo.TYPE_INPUT_METHOD -> ScreenWindowType.SYSTEM
+                    else -> ScreenWindowType.OTHER
+                },
+                isActive = window.isActive,
+                isFocused = window.isFocused,
+                root = window.root?.let { AndroidNodeView(it) },
+            )
+        }
 
     override suspend fun longPressAt(x: Int, y: Int, durationMs: Long): Boolean =
         dispatchPath(Path().apply { moveTo(x.toFloat(), y.toFloat()) }, 0, durationMs)

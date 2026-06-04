@@ -73,8 +73,11 @@ class AndroidClient:
     async def ping(self):
         return await self._request("GET", "/ping")
 
-    async def read_screen(self, include_bounds: bool = True):
-        return await self._request("GET", "/screen", params={"bounds": str(include_bounds).lower()})
+    async def read_screen(self, include_bounds: bool = True, include_system_ui: bool = False):
+        return await self._request("GET", "/screen", params={
+            "bounds": str(include_bounds).lower(),
+            "include_system_ui": str(include_system_ui).lower(),
+        })
 
     async def tap(self, x=None, y=None, node_id=None):
         return await self._request("POST", "/tap", json={"x": x, "y": y, "node_id": node_id})

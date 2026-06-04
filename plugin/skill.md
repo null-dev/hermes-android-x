@@ -14,7 +14,7 @@ The phone must be on the same LAN or VPN as the agent.
 
 ### Core / navigation
 - `android_ping` — connectivity + device info
-- `android_read_screen` — accessibility tree (each node has an `id` usable by `android_tap`)
+- `android_read_screen` — active app accessibility tree (each node has an `id` usable by `android_tap`; pass `include_system_ui=true` for system UI windows)
 - `android_tap` — tap by `(x, y)` or `node_id`
 - `android_type` — type into the focused field
 - `android_tap_text` — tap the first node whose text matches a string
