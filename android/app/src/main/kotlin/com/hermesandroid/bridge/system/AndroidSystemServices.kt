@@ -18,6 +18,12 @@ class AndroidSystemServices(private val context: Context) : SystemServices {
         context.packageManager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY)
 
     override fun readClipboard(): String? {
+        // Android 10+ blocks clipboard reads from background processes.
+        // If SYSTEM_ALERT_WINDOW is granted we briefly spawn a 1×1 focusable overlay
+        // window which gives this process foreground status, allowing the read.
+        if (android.provider.Settings.canDrawOverlays(context)) {
+            return ClipboardLatch.request(context)
+        }
         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         return cm.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
     }

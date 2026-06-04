@@ -3,6 +3,7 @@ package com.hermesandroid.bridge.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -96,6 +97,17 @@ class PermissionsActivity : AppCompatActivity() {
             description = "Required for android_screen_record",
             isGranted = { MediaProjectionHolder.hasConsent() },
             grant = { ScreenCaptureActivity.launch(this@PermissionsActivity) },
+        ))
+        add(PermItem(
+            name = "Draw Over Other Apps",
+            description = "Required for android_clipboard_read (bypasses Android 10+ background restriction)",
+            isGranted = { Settings.canDrawOverlays(this@PermissionsActivity) },
+            grant = {
+                startActivity(Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName"),
+                ))
+            },
         ))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             add(PermItem(
