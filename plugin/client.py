@@ -171,3 +171,22 @@ class AndroidClient:
 
     async def speak_stop(self):
         return await self._request("POST", "/speak/stop", json={})
+
+    async def notifications(self):
+        return await self._request("GET", "/notifications")
+
+    async def events(self, since=0):
+        return await self._request("GET", "/events", params={"since": since})
+
+    async def widgets(self):
+        return await self._request("GET", "/widgets")
+
+    async def event_stream(self, since=0):
+        """Yield event dicts from the SSE stream until cancelled."""
+        import json as _json
+        async with self._client.stream("GET", "/events/stream", params={"since": since}) as resp:
+            if resp.status_code == 401:
+                raise BridgeError("unauthorized", "bad or missing token", 401)
+            async for line in resp.aiter_lines():
+                if line.startswith("data: "):
+                    yield _json.loads(line[len("data: "):])

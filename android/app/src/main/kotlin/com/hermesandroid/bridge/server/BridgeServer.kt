@@ -15,6 +15,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.receiveText
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondTextWriter
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -218,6 +219,37 @@ class BridgeServer(
                     call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Speak(b.text)) }
                 }
                 post("/speak/stop") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.SpeakStop) } }
+                get("/notifications") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Notifications) } }
+                get("/events") {
+                    val since = call.request.queryParameters["since"]?.toLongOrNull() ?: 0L
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Events(since)) }
+                }
+                get("/widgets") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Widgets) } }
+                get("/events/stream") {
+                    val ip = call.request.local.remoteHost
+                    when (authenticator.authenticate(ip, call.request.headers["Authorization"])) {
+                        AuthResult.Blocked -> call.respond(io.ktor.http.HttpStatusCode.TooManyRequests, mapOf("ok" to false, "error" to "blocked"))
+                        AuthResult.Unauthorized -> call.respond(io.ktor.http.HttpStatusCode.Unauthorized, mapOf("ok" to false, "error" to "unauthorized"))
+                        AuthResult.Ok -> {
+                            call.respondTextWriter(contentType = io.ktor.http.ContentType.Text.EventStream) {
+                                var lastSeq = call.request.queryParameters["since"]?.toLongOrNull() ?: 0L
+                                try {
+                                    while (true) {
+                                        val batch = com.hermesandroid.bridge.event.EventBus.events.since(lastSeq)
+                                        for (e in batch) {
+                                            lastSeq = e.seq
+                                            write("data: ${gson.toJson(e)}\n\n")
+                                            flush()
+                                        }
+                                        kotlinx.coroutines.delay(500)
+                                    }
+                                } catch (e: Exception) {
+                                    // client disconnected — end the stream
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }.also { it.start(wait = false) }
     }

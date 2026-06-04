@@ -67,4 +67,5 @@ def test_schemas_cover_all_tools():
         "android_clipboard_read", "android_clipboard_write", "android_send_intent",
         "android_broadcast", "android_send_sms", "android_call", "android_search_contacts",
         "android_location", "android_media", "android_speak", "android_speak_stop",
+        "android_notifications", "android_events", "android_widgets", "android_event_stream",
     }

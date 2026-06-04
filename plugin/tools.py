@@ -186,6 +186,34 @@ async def android_speak_stop(client):
     return await _run(client.speak_stop())
 
 
+async def android_notifications(client):
+    """Read current notifications."""
+    return await _run(client.notifications())
+
+
+async def android_events(client, since=0):
+    """Read recent accessibility events newer than `since` (a seq number)."""
+    return await _run(client.events(since=since))
+
+
+async def android_widgets(client):
+    """List installed home-screen widget providers."""
+    return await _run(client.widgets())
+
+
+async def android_event_stream(client, since=0, limit=20):
+    """Collect up to `limit` events from the live stream, then return them."""
+    collected = []
+    try:
+        async for event in client.event_stream(since=since):
+            collected.append(event)
+            if len(collected) >= limit:
+                break
+    except Exception as e:
+        return {"ok": False, "error": "stream_error", "message": str(e)}
+    return {"ok": True, "data": {"events": collected}}
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -332,4 +360,15 @@ TOOL_SCHEMAS = [
      "handler": android_speak},
     {"name": "android_speak_stop", "description": "Stop TTS.",
      "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_speak_stop},
+    {"name": "android_notifications", "description": "Read current notifications.",
+     "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_notifications},
+    {"name": "android_events", "description": "Read recent accessibility events since a seq.",
+     "parameters": {"type": "object", "properties": {"since": {"type": "integer", "default": 0}},
+         "required": []}, "handler": android_events},
+    {"name": "android_widgets", "description": "List installed home-screen widget providers.",
+     "parameters": {"type": "object", "properties": {}, "required": []}, "handler": android_widgets},
+    {"name": "android_event_stream", "description": "Collect events from the live stream.",
+     "parameters": {"type": "object", "properties": {
+         "since": {"type": "integer", "default": 0}, "limit": {"type": "integer", "default": 20}},
+         "required": []}, "handler": android_event_stream},
 ]
