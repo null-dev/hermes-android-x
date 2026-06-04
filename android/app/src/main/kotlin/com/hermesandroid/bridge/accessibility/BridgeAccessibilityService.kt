@@ -10,6 +10,7 @@ import android.view.accessibility.AccessibilityNodeInfo
 import com.hermesandroid.bridge.command.Command
 import com.hermesandroid.bridge.command.CommandExecutor
 import com.hermesandroid.bridge.command.CommandResult
+import com.hermesandroid.bridge.lifecycle.WakeLockManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -24,6 +25,7 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val actionExecutor = ActionExecutor(this)
+    private val wakeLocks by lazy { WakeLockManager(this) }
 
     /** Per-command timeout (ms). Generous enough for slow UIs; bounded so the queue drains. */
     private val executor = CommandExecutor(scope, timeoutMs = 25_000, handler = ::handle)
@@ -45,7 +47,8 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
     }
 
     /** Public entry point the HTTP server calls. */
-    suspend fun submit(command: Command): CommandResult = executor.submit(command)
+    suspend fun submit(command: Command): CommandResult =
+        wakeLocks.around { executor.submit(command) }
 
     private suspend fun handle(command: Command): CommandResult {
         return when (command) {
