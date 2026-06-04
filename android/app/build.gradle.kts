@@ -19,7 +19,10 @@ android {
     buildFeatures { buildConfig = true }
 
     buildTypes {
-        release { isMinifyEnabled = false }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
+        }
     }
 
     applicationVariants.all {
