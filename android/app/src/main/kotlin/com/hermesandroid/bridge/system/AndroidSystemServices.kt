@@ -118,6 +118,8 @@ class AndroidSystemServices(private val context: Context) : SystemServices {
         }
     }
 
+    override fun warmUpTts() { ensureTts() }
+
     override fun speak(text: String): Boolean {
         ensureTts()
         val engine = tts ?: return false

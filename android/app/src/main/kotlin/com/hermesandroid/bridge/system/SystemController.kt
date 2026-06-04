@@ -61,4 +61,6 @@ class SystemController(private val sys: SystemServices) {
         sys.stopSpeaking()
         return CommandResult.Ok(mapOf("stopped" to true))
     }
+
+    fun warmUpTts() = sys.warmUpTts()
 }

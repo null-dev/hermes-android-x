@@ -28,6 +28,7 @@ private class FakeSys(
     override fun mediaAction(action: MediaAction): Boolean { lastMedia = action; return mediaOk }
     override fun speak(text: String) = ttsOk
     override fun stopSpeaking() {}
+    override fun warmUpTts() {}
 }
 
 class SystemControllerTest {

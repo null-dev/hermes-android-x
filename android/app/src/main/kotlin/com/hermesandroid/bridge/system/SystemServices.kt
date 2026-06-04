@@ -23,4 +23,6 @@ interface SystemServices {
     fun mediaAction(action: MediaAction): Boolean
     fun speak(text: String): Boolean
     fun stopSpeaking()
+    /** Start TTS engine initialization in the background so it is ready before the first speak(). */
+    fun warmUpTts()
 }

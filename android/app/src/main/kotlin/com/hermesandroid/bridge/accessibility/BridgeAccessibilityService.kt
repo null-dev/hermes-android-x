@@ -41,6 +41,7 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
     override fun onServiceConnected() {
         super.onServiceConnected()
         ref.set(this)
+        systemController.warmUpTts()
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
