@@ -29,6 +29,11 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val actionExecutor = ActionExecutor(this)
     private val wakeLocks by lazy { WakeLockManager(this) }
+    private val systemController by lazy {
+        com.hermesandroid.bridge.system.SystemController(
+            com.hermesandroid.bridge.system.AndroidSystemServices(this)
+        )
+    }
 
     /** Per-command timeout (ms). Generous enough for slow UIs; bounded so the queue drains. */
     private val executor = CommandExecutor(scope, timeoutMs = 25_000, handler = ::handle)
@@ -99,6 +104,17 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
                     else CommandResult.Ok(mapOf("mp4_base64" to java.util.Base64.getEncoder().encodeToString(mp4)))
                 }
             }
+            is Command.ClipboardRead -> systemController.clipboardRead()
+            is Command.ClipboardWrite -> systemController.clipboardWrite(command)
+            is Command.SendIntent -> systemController.sendIntent(command)
+            is Command.Broadcast -> systemController.broadcast(command)
+            is Command.SendSms -> systemController.sendSms(command)
+            is Command.Call -> systemController.call(command)
+            is Command.SearchContacts -> systemController.searchContacts(command)
+            is Command.GetLocation -> systemController.location()
+            is Command.MediaControl -> systemController.media(command)
+            is Command.Speak -> systemController.speak(command)
+            is Command.SpeakStop -> systemController.stopSpeaking()
         }
     }
 

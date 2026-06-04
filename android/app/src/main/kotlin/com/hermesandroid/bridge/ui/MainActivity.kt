@@ -32,5 +32,15 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnScreenRecord).setOnClickListener {
             com.hermesandroid.bridge.ui.ScreenCaptureActivity.launch(this)
         }
+
+        requestPermissions(
+            arrayOf(
+                android.Manifest.permission.SEND_SMS,
+                android.Manifest.permission.CALL_PHONE,
+                android.Manifest.permission.READ_CONTACTS,
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+            42,
+        )
     }
 }

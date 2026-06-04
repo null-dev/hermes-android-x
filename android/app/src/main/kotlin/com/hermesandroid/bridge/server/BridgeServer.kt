@@ -181,6 +181,43 @@ class BridgeServer(
                         BridgeAccessibilityService.current()!!.submit(Command.ScreenRecord(d))
                     }
                 }
+                get("/clipboard") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.ClipboardRead) } }
+                post("/clipboard") {
+                    val b = gson.fromJson(call.receiveText(), TextBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.ClipboardWrite(b.text)) }
+                }
+                post("/intent") {
+                    val b = gson.fromJson(call.receiveText(), IntentBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(
+                        Command.SendIntent(b.action, b.data, b.extras ?: emptyMap())) }
+                }
+                post("/broadcast") {
+                    val b = gson.fromJson(call.receiveText(), BroadcastBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(
+                        Command.Broadcast(b.action, b.extras ?: emptyMap())) }
+                }
+                post("/sms") {
+                    val b = gson.fromJson(call.receiveText(), SmsBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.SendSms(b.number, b.text)) }
+                }
+                post("/call") {
+                    val b = gson.fromJson(call.receiveText(), CallBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Call(b.number)) }
+                }
+                get("/contacts") {
+                    val q = call.request.queryParameters["q"] ?: ""
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.SearchContacts(q)) }
+                }
+                get("/location") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.GetLocation) } }
+                post("/media") {
+                    val b = gson.fromJson(call.receiveText(), MediaBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.MediaControl(b.action)) }
+                }
+                post("/speak") {
+                    val b = gson.fromJson(call.receiveText(), TextBody::class.java)
+                    call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Speak(b.text)) }
+                }
+                post("/speak/stop") { call.guarded { BridgeAccessibilityService.current()!!.submit(Command.SpeakStop) } }
             }
         }.also { it.start(wait = false) }
     }
@@ -203,6 +240,13 @@ class BridgeServer(
     private data class PressKeyBody(val key: String)
     private data class WaitBody(val text: String?, val class_name: String?, val timeout_ms: Long?)
     private data class ScreenRecordBody(val duration_ms: Long?)
+
+    private data class TextBody(val text: String)
+    private data class IntentBody(val action: String, val data: String?, val extras: Map<String, String>?)
+    private data class BroadcastBody(val action: String, val extras: Map<String, String>?)
+    private data class SmsBody(val number: String, val text: String)
+    private data class CallBody(val number: String)
+    private data class MediaBody(val action: String)
 
     private fun parseDirection(s: String) =
         com.hermesandroid.bridge.accessibility.Direction.valueOf(s.uppercase())

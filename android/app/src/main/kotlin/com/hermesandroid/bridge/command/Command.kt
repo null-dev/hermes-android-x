@@ -37,6 +37,18 @@ sealed interface Command {
     data object Screenshot : Command
 
     data class ScreenRecord(val durationMs: Long) : Command
+
+    data object ClipboardRead : Command
+    data class ClipboardWrite(val text: String) : Command
+    data class SendIntent(val action: String, val data: String?, val extras: Map<String, String>) : Command
+    data class Broadcast(val action: String, val extras: Map<String, String>) : Command
+    data class SendSms(val number: String, val text: String) : Command
+    data class Call(val number: String) : Command
+    data class SearchContacts(val query: String) : Command
+    data object GetLocation : Command
+    data class MediaControl(val action: String) : Command
+    data class Speak(val text: String) : Command
+    data object SpeakStop : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */
