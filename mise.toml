@@ -17,10 +17,15 @@ description = "Run instrumented tests on a connected phone (ADB)"
 dir = "android"
 run = "./gradlew connectedDebugAndroidTest"
 
-[tasks.build-apk]
+[tasks.build-debug-apk]
 description = "Assemble the debug APK"
 dir = "android"
 run = "./gradlew assembleDebug"
+
+[tasks.build-release-apk]
+description = "Assemble the debug APK"
+dir = "android"
+run = "./gradlew assembleRelease"
 
 [tasks.lint]
 description = "Lint Kotlin"
