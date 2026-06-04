@@ -54,6 +54,8 @@ class AndroidClient:
             raise BridgeError("timeout", "device command timed out", 408)
         if status == 413:
             raise BridgeError("request_too_large", "request body too large", 413)
+        if status == 429:
+            raise BridgeError("rate_limited", "too many auth failures; temporarily blocked", 429)
         if status == 503:
             raise BridgeError("service_unavailable", "accessibility service not enabled", 503)
         if status >= 400:

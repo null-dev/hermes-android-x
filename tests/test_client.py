@@ -54,6 +54,15 @@ async def test_401_raises_unauthorized(httpx_mock):
     await client.aclose()
 
 
+async def test_429_raises_rate_limited(httpx_mock):
+    httpx_mock.add_response(status_code=429, json={"ok": False, "error": "blocked"})
+    client = AndroidClient(cfg())
+    with pytest.raises(BridgeError) as e:
+        await client.ping()
+    assert e.value.error == "rate_limited"
+    await client.aclose()
+
+
 async def test_app_level_failure_raises(httpx_mock):
     httpx_mock.add_response(json={"ok": False, "error": "no_focused_field", "message": "nope"})
     client = AndroidClient(cfg())
