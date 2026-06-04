@@ -1,5 +1,6 @@
 package com.hermesandroid.bridge.system
 
+import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -8,7 +9,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 
 /**
  * Invisible 1×1 overlay activity that briefly gains foreground/focus status so Android
@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
  * Lifecycle: onCreate → addOverlay (unfocusable) → makeFocusable → onGlobalLayout fires
  *            → readClipboard → deliver to ClipboardLatch → removeOverlay → finish()
  */
-class ClipboardFloatingActivity : AppCompatActivity() {
+class ClipboardFloatingActivity : Activity() {
 
     private lateinit var wm: WindowManager
     private lateinit var overlay: View
