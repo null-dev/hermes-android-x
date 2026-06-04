@@ -34,29 +34,11 @@ class TokenStore(
     }
 
     private fun generate(): String {
-        val bytes = ByteArray(20) // 160 bits
-        random.nextBytes(bytes)
-        return base32(bytes)
-    }
-
-    private fun base32(data: ByteArray): String {
-        val alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"
-        val sb = StringBuilder()
-        var buffer = 0
-        var bitsLeft = 0
-        for (b in data) {
-            buffer = (buffer shl 8) or (b.toInt() and 0xff)
-            bitsLeft += 8
-            while (bitsLeft >= 5) {
-                val index = (buffer shr (bitsLeft - 5)) and 0x1f
-                sb.append(alphabet[index])
-                bitsLeft -= 5
+        val alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789"
+        return buildString(capacity = 18) {
+            repeat(18) {
+                append(alphabet[random.nextInt(alphabet.length)])
             }
         }
-        if (bitsLeft > 0) {
-            val index = (buffer shl (5 - bitsLeft)) and 0x1f
-            sb.append(alphabet[index])
-        }
-        return sb.toString()
     }
 }

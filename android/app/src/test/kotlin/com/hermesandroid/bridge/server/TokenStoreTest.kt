@@ -17,7 +17,7 @@ class TokenStoreTest {
         val storage = FakeStorage()
         val store = TokenStore(storage)
         val first = store.getOrCreate()
-        assertTrue("token too short", first.length >= 16)
+        assertEquals("token length", 18, first.length)
         assertEquals("must persist", first, storage.value)
         assertEquals("must be stable", first, store.getOrCreate())
     }
@@ -31,8 +31,11 @@ class TokenStoreTest {
     }
 
     @Test
-    fun tokenIsBase32Charset() {
+    fun tokenUsesReadableAlphaNumericCharset() {
         val token = TokenStore(FakeStorage()).getOrCreate()
-        assertTrue(token.all { it in 'A'..'Z' || it in '2'..'7' })
+        val allowed = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789".toSet()
+        assertEquals(18, token.length)
+        assertTrue(token.all { it in allowed })
+        assertTrue(token.none { it in "Il1Oo0" })
     }
 }
