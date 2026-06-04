@@ -6,9 +6,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-private class WaitActions(private val appearsOnAttempt: Int) : AccessibilityActions {
+private class WaitActions(
+    private val appearsOnAttempt: Int,
+    private val match: ScreenNode = ScreenNode("0.0", "Ready", null, "T", null, false, NodeBounds(0, 0, 1, 1), emptyList()),
+) : AccessibilityActions {
     private var attempt = 0
-    private val match = ScreenNode("0.0", "Ready", null, "T", null, false, NodeBounds(0, 0, 1, 1), emptyList())
     private val root = ScreenNode("0", null, null, "Root", null, false, NodeBounds(0, 0, 1, 1), emptyList())
     override fun readTree(includeBounds: Boolean): ScreenNode {
         attempt++
@@ -38,5 +40,21 @@ class ActionExecutorWaitTest {
     @Test fun notFoundWithinTimeout() = runTest {
         val r = ActionExecutor(WaitActions(appearsOnAttempt = 999)).waitFor(Command.Wait("Ready", null, 500))
         assertEquals(false, ((r as CommandResult.Ok).data as Map<*, *>)["found"])
+    }
+    @Test fun foundWhenContentDescriptionContainsText() = runTest {
+        val node = ScreenNode(
+            "0.0",
+            text = null,
+            contentDescription = "Ready to submit",
+            className = "T",
+            viewId = null,
+            clickable = false,
+            bounds = NodeBounds(0, 0, 1, 1),
+            children = emptyList(),
+        )
+        val r = ActionExecutor(WaitActions(appearsOnAttempt = 1, match = node))
+            .waitFor(Command.Wait("Ready", null, 500))
+        assertEquals(true, ((r as CommandResult.Ok).data as Map<*, *>)["found"])
+        assertEquals("0.0", (r.data as Map<*, *>)["node_id"])
     }
 }

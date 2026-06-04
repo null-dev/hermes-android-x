@@ -27,6 +27,9 @@ private class NodeActions(private val tree: ScreenNode?) : AccessibilityActions 
 private fun btn(id: String, text: String) =
     ScreenNode(id, text, null, "android.widget.Button", null, true, NodeBounds(0, 0, 100, 100), emptyList())
 
+private fun describedNode(id: String, description: String) =
+    ScreenNode(id, null, description, "android.widget.ImageButton", null, true, NodeBounds(0, 0, 100, 100), emptyList())
+
 class ActionExecutorNodeTest {
     private val tree = ScreenNode("0", null, null, "Root", null, false,
         NodeBounds(0, 0, 100, 100), listOf(btn("0.0", "OK")))
@@ -45,6 +48,14 @@ class ActionExecutorNodeTest {
 
     @Test fun findNodesReturnsMatches() = runTest {
         val r = ActionExecutor(NodeActions(tree)).findNodes(Command.FindNodes("OK", null, false))
+        val data = (r as CommandResult.Ok).data as Map<*, *>
+        assertEquals(1, (data["nodes"] as List<*>).size)
+    }
+
+    @Test fun findNodesMatchesContentDescriptions() = runTest {
+        val describedTree = ScreenNode("0", null, null, "Root", null, false,
+            NodeBounds(0, 0, 100, 100), listOf(describedNode("0.0", "Open settings")))
+        val r = ActionExecutor(NodeActions(describedTree)).findNodes(Command.FindNodes("settings", null, false))
         val data = (r as CommandResult.Ok).data as Map<*, *>
         assertEquals(1, (data["nodes"] as List<*>).size)
     }

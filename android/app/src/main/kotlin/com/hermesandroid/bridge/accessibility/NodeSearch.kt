@@ -29,8 +29,12 @@ object NodeSearch {
 
     fun matching(root: ScreenNode, text: String?, className: String?, clickableOnly: Boolean): List<ScreenNode> =
         flatten(root).filter { n ->
-            (text == null || (n.text?.contains(text, ignoreCase = true) == true)) &&
+            (text == null || n.hasTextOrDescription(text)) &&
             (className == null || (n.className?.contains(className, ignoreCase = true) == true)) &&
             (!clickableOnly || n.clickable)
         }
+
+    private fun ScreenNode.hasTextOrDescription(query: String): Boolean =
+        text?.contains(query, ignoreCase = true) == true ||
+            contentDescription?.contains(query, ignoreCase = true) == true
 }
