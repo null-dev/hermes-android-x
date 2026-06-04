@@ -124,6 +124,71 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
         }
     }
 
+    override fun readTree(includeBounds: Boolean): ScreenNode? {
+        val root = rootInActiveWindow ?: return null
+        return ScreenReader.read(AndroidNodeView(root), includeBounds)
+    }
+
+    override suspend fun longPressAt(x: Int, y: Int, durationMs: Long): Boolean =
+        dispatchPath(Path().apply { moveTo(x.toFloat(), y.toFloat()) }, 0, durationMs)
+
+    override suspend fun dragPath(fromX: Int, fromY: Int, toX: Int, toY: Int, durationMs: Long): Boolean =
+        dispatchPath(Path().apply { moveTo(fromX.toFloat(), fromY.toFloat()); lineTo(toX.toFloat(), toY.toFloat()) }, 0, durationMs)
+
+    override suspend fun swipePath(fromX: Int, fromY: Int, toX: Int, toY: Int, durationMs: Long): Boolean =
+        dispatchPath(Path().apply { moveTo(fromX.toFloat(), fromY.toFloat()); lineTo(toX.toFloat(), toY.toFloat()) }, 0, durationMs)
+
+    override suspend fun pinchAt(x: Int, y: Int, scale: Double): Boolean = suspendCancellableCoroutine { cont ->
+        val span = 200
+        val end = (span * scale).toInt().coerceAtLeast(1)
+        fun line(startOff: Int, endOff: Int) = Path().apply {
+            moveTo((x + startOff).toFloat(), y.toFloat()); lineTo((x + endOff).toFloat(), y.toFloat())
+        }
+        val g = GestureDescription.Builder()
+            .addStroke(GestureDescription.StrokeDescription(line(-span, -end), 0, 300))
+            .addStroke(GestureDescription.StrokeDescription(line(span, end), 0, 300))
+            .build()
+        val ok = dispatchGesture(g, object : GestureResultCallback() {
+            override fun onCompleted(d: GestureDescription?) { if (cont.isActive) cont.resume(true) }
+            override fun onCancelled(d: GestureDescription?) { if (cont.isActive) cont.resume(false) }
+        }, null)
+        if (!ok && cont.isActive) cont.resume(false)
+    }
+
+    override fun pressGlobal(action: Int): Boolean = performGlobalAction(action)
+
+    override fun launchApp(packageName: String): Boolean {
+        val intent = packageManager.getLaunchIntentForPackage(packageName) ?: return false
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        return true
+    }
+
+    override fun foregroundPackage(): String? = rootInActiveWindow?.let {
+        @Suppress("DEPRECATION") val pkg = it.packageName?.toString(); it.recycle(); pkg
+    }
+
+    override fun installedApps(): List<Pair<String, String>> {
+        val pm = packageManager
+        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN)
+            .addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        return pm.queryIntentActivities(intent, 0).map {
+            (it.loadLabel(pm)?.toString() ?: it.activityInfo.packageName) to it.activityInfo.packageName
+        }.distinctBy { it.second }
+    }
+
+    private suspend fun dispatchPath(path: Path, startTime: Long, durationMs: Long): Boolean =
+        suspendCancellableCoroutine { cont ->
+            val g = GestureDescription.Builder()
+                .addStroke(GestureDescription.StrokeDescription(path, startTime, durationMs))
+                .build()
+            val ok = dispatchGesture(g, object : GestureResultCallback() {
+                override fun onCompleted(d: GestureDescription?) { if (cont.isActive) cont.resume(true) }
+                override fun onCancelled(d: GestureDescription?) { if (cont.isActive) cont.resume(false) }
+            }, null)
+            if (!ok && cont.isActive) cont.resume(false)
+        }
+
     companion object {
         private val ref = AtomicReference<BridgeAccessibilityService?>(null)
         /** Current connected service, or null if accessibility is off / mid-restart. */

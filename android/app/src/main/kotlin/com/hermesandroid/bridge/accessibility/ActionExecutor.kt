@@ -6,10 +6,28 @@ import com.hermesandroid.bridge.command.CommandResult
 /** The Android-side actions ActionExecutor needs; real impl lives in the service. */
 interface AccessibilityActions {
     suspend fun tapAt(x: Int, y: Int): Boolean
-    /** Center of the node at [id] on the current tree, or null if it's no longer there. */
     fun nodeCenterById(id: String): Pair<Int, Int>?
-    /** Set text on the focused editable; false if nothing editable is focused. */
     fun setFocusedText(text: String, clearFirst: Boolean): Boolean
+
+    // Added in Plan 2:
+    /** Snapshot of the current screen, or null if the service can't read it. */
+    fun readTree(includeBounds: Boolean): ScreenNode?
+    /** Long-press gesture at a point. */
+    suspend fun longPressAt(x: Int, y: Int, durationMs: Long): Boolean
+    /** Linear drag between two points over [durationMs]. */
+    suspend fun dragPath(fromX: Int, fromY: Int, toX: Int, toY: Int, durationMs: Long): Boolean
+    /** Two-finger pinch centered at (x,y); scale<1 zooms out, >1 zooms in. */
+    suspend fun pinchAt(x: Int, y: Int, scale: Double): Boolean
+    /** A directional swipe between two points. */
+    suspend fun swipePath(fromX: Int, fromY: Int, toX: Int, toY: Int, durationMs: Long): Boolean
+    /** Press a global/system key; returns false if the action isn't available. */
+    fun pressGlobal(action: Int): Boolean
+    /** Launch an app by package name; false if not installed. */
+    fun launchApp(packageName: String): Boolean
+    /** Package name of the foreground app, or null. */
+    fun foregroundPackage(): String?
+    /** Installed launchable apps as (label, package). */
+    fun installedApps(): List<Pair<String, String>>
 }
 
 /** Pure command logic for tap/type, delegating Android specifics to [actions]. */

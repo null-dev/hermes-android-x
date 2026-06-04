@@ -22,6 +22,15 @@ class ActionExecutorTest {
             if (!focusedField) return false
             typed = text; return true
         }
+        override fun readTree(includeBounds: Boolean): ScreenNode? = null
+        override suspend fun longPressAt(x: Int, y: Int, durationMs: Long) = true
+        override suspend fun dragPath(fromX: Int, fromY: Int, toX: Int, toY: Int, durationMs: Long) = true
+        override suspend fun pinchAt(x: Int, y: Int, scale: Double) = true
+        override suspend fun swipePath(fromX: Int, fromY: Int, toX: Int, toY: Int, durationMs: Long) = true
+        override fun pressGlobal(action: Int) = true
+        override fun launchApp(packageName: String) = true
+        override fun foregroundPackage(): String? = null
+        override fun installedApps(): List<Pair<String, String>> = emptyList()
     }
 
     @Test
