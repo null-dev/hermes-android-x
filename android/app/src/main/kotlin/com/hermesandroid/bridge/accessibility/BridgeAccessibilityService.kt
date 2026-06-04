@@ -89,6 +89,16 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
                 if (png == null) CommandResult.Err("screenshot_failed", "could not capture screen")
                 else CommandResult.Ok(mapOf("png_base64" to java.util.Base64.getEncoder().encodeToString(png)))
             }
+            is Command.ScreenRecord -> {
+                val projection = com.hermesandroid.bridge.lifecycle.MediaProjectionHolder.acquire(this)
+                if (projection == null) {
+                    CommandResult.Err("screen_record_unavailable", "grant screen recording in the app first")
+                } else {
+                    val mp4 = com.hermesandroid.bridge.capture.ScreenRecorder(this).record(projection, command.durationMs)
+                    if (mp4 == null) CommandResult.Err("screen_record_failed", "recording failed")
+                    else CommandResult.Ok(mapOf("mp4_base64" to java.util.Base64.getEncoder().encodeToString(mp4)))
+                }
+            }
         }
     }
 

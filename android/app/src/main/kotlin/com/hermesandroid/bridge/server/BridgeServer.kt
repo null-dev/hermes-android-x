@@ -174,6 +174,13 @@ class BridgeServer(
                 get("/screenshot") {
                     call.guarded { BridgeAccessibilityService.current()!!.submit(Command.Screenshot) }
                 }
+                post("/screen_record") {
+                    val b = gson.fromJson(call.receiveText(), ScreenRecordBody::class.java)
+                    val d = (b.duration_ms ?: 5_000).coerceAtMost(20_000)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(Command.ScreenRecord(d))
+                    }
+                }
             }
         }.also { it.start(wait = false) }
     }
@@ -195,6 +202,7 @@ class BridgeServer(
     private data class OpenAppBody(val package_name: String)
     private data class PressKeyBody(val key: String)
     private data class WaitBody(val text: String?, val class_name: String?, val timeout_ms: Long?)
+    private data class ScreenRecordBody(val duration_ms: Long?)
 
     private fun parseDirection(s: String) =
         com.hermesandroid.bridge.accessibility.Direction.valueOf(s.uppercase())

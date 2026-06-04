@@ -135,3 +135,6 @@ class AndroidClient:
 
     async def screenshot(self):
         return await self._request("GET", "/screenshot")
+
+    async def screen_record(self, duration_ms=5000):
+        return await self._request("POST", "/screen_record", json={"duration_ms": duration_ms})

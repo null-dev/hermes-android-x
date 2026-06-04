@@ -119,6 +119,18 @@ async def android_screenshot(client, media=None):
     return {"ok": True, "data": {"media_path": path}}
 
 
+async def android_screen_record(client, duration_ms=5000, media=None):
+    """Record the screen for a duration; returns a local file path to the MP4."""
+    _plugin = sys.modules[__package__]
+    store = media if media is not None else _plugin.get_media()
+    try:
+        data = await client.screen_record(duration_ms=duration_ms)
+    except BridgeError as e:
+        return {"ok": False, "error": e.error, "message": e.message}
+    path = store.write_base64(data["mp4_base64"], suffix=".mp4")
+    return {"ok": True, "data": {"media_path": path}}
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -228,4 +240,8 @@ TOOL_SCHEMAS = [
     {"name": "android_screenshot", "description": "Capture a screenshot (returns a PNG file path).",
      "parameters": {"type": "object", "properties": {}, "required": []},
      "handler": android_screenshot},
+    {"name": "android_screen_record", "description": "Record the screen (returns an MP4 file path).",
+     "parameters": {"type": "object", "properties": {
+         "duration_ms": {"type": "integer", "default": 5000}}, "required": []},
+     "handler": android_screen_record},
 ]

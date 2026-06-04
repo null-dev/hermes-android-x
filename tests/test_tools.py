@@ -63,5 +63,5 @@ def test_schemas_cover_all_tools():
         "android_tap_text", "android_find_nodes", "android_describe_node",
         "android_screen_hash", "android_diff_screen",
         "android_open_app", "android_press_key", "android_current_app", "android_get_apps",
-        "android_wait", "android_screenshot",
+        "android_wait", "android_screenshot", "android_screen_record",
     }

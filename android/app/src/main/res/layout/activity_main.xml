@@ -21,4 +21,8 @@
     <Button android:id="@+id/btnAccessibility"
         android:layout_width="wrap_content" android:layout_height="wrap_content"
         android:text="Enable accessibility" android:layout_marginTop="8dp" />
+
+    <Button android:id="@+id/btnScreenRecord"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Grant screen recording" android:layout_marginTop="8dp" />
 </LinearLayout>

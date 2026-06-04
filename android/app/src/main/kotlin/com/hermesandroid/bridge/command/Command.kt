@@ -35,6 +35,8 @@ sealed interface Command {
     data class Wait(val text: String?, val className: String?, val timeoutMs: Long) : Command
 
     data object Screenshot : Command
+
+    data class ScreenRecord(val durationMs: Long) : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */
