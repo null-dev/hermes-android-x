@@ -53,4 +53,50 @@ class ActionExecutor(private val actions: AccessibilityActions) {
         } else {
             CommandResult.Err("no_focused_field", "No input field is focused")
         }
+
+    private fun resolvePoint(x: Int?, y: Int?, nodeId: String?): Pair<Int, Int>? = when {
+        x != null && y != null -> x to y
+        nodeId != null -> actions.nodeCenterById(nodeId)
+        else -> null
+    }
+
+    suspend fun longPress(cmd: Command.LongPress): CommandResult {
+        val p = resolvePoint(cmd.x, cmd.y, cmd.nodeId)
+            ?: return CommandResult.Err("bad_request", "long_press needs (x,y) or node_id")
+        return if (actions.longPressAt(p.first, p.second, cmd.durationMs)) CommandResult.Ok(mapOf("long_pressed" to listOf(p.first, p.second)))
+        else CommandResult.Err("gesture_failed", "long-press not dispatched")
+    }
+
+    suspend fun drag(cmd: Command.Drag): CommandResult =
+        if (actions.dragPath(cmd.fromX, cmd.fromY, cmd.toX, cmd.toY, cmd.durationMs)) CommandResult.Ok(mapOf("dragged" to true))
+        else CommandResult.Err("gesture_failed", "drag not dispatched")
+
+    suspend fun pinch(cmd: Command.Pinch): CommandResult =
+        if (actions.pinchAt(cmd.x, cmd.y, cmd.scale)) CommandResult.Ok(mapOf("pinched" to cmd.scale))
+        else CommandResult.Err("gesture_failed", "pinch not dispatched")
+
+    suspend fun swipe(cmd: Command.Swipe): CommandResult {
+        val bounds = actions.readTree(true)?.bounds ?: return CommandResult.ServiceUnavailable
+        val (from, to) = GestureMath.swipe(bounds, cmd.direction, cmd.distanceFraction)
+        return if (actions.swipePath(from.first, from.second, to.first, to.second, 250)) CommandResult.Ok(mapOf("swiped" to cmd.direction.name))
+        else CommandResult.Err("gesture_failed", "swipe not dispatched")
+    }
+
+    suspend fun scroll(cmd: Command.Scroll): CommandResult {
+        val tree = actions.readTree(true) ?: return CommandResult.ServiceUnavailable
+        val bounds = if (cmd.nodeId != null) {
+            NodeSearch.byId(tree, cmd.nodeId)?.bounds
+                ?: return CommandResult.Err("stale_node", "node ${cmd.nodeId} not on current screen")
+        } else tree.bounds
+        // Scrolling toward a direction means swiping content the opposite way.
+        val swipeDir = when (cmd.direction) {
+            Direction.DOWN -> Direction.UP
+            Direction.UP -> Direction.DOWN
+            Direction.LEFT -> Direction.RIGHT
+            Direction.RIGHT -> Direction.LEFT
+        }
+        val (from, to) = GestureMath.swipe(bounds, swipeDir, 0.6)
+        return if (actions.swipePath(from.first, from.second, to.first, to.second, 250)) CommandResult.Ok(mapOf("scrolled" to cmd.direction.name))
+        else CommandResult.Err("gesture_failed", "scroll not dispatched")
+    }
 }

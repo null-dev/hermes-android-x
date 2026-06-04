@@ -81,3 +81,20 @@ class AndroidClient:
 
     async def type_text(self, text: str, clear_first: bool = False):
         return await self._request("POST", "/type", json={"text": text, "clear_first": clear_first})
+
+    async def long_press(self, x=None, y=None, node_id=None, duration_ms=600):
+        return await self._request("POST", "/long_press",
+                                   json={"x": x, "y": y, "node_id": node_id, "duration_ms": duration_ms})
+
+    async def drag(self, from_x, from_y, to_x, to_y, duration_ms=300):
+        return await self._request("POST", "/drag",
+                                   json={"from_x": from_x, "from_y": from_y, "to_x": to_x, "to_y": to_y, "duration_ms": duration_ms})
+
+    async def pinch(self, x, y, scale):
+        return await self._request("POST", "/pinch", json={"x": x, "y": y, "scale": scale})
+
+    async def swipe(self, direction, distance=0.5):
+        return await self._request("POST", "/swipe", json={"direction": direction, "distance": distance})
+
+    async def scroll(self, direction, node_id=None):
+        return await self._request("POST", "/scroll", json={"direction": direction, "node_id": node_id})

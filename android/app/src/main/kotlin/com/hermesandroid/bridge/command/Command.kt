@@ -13,6 +13,12 @@ sealed interface Command {
 
     /** Type into the currently focused input field. */
     data class Type(val text: String, val clearFirst: Boolean) : Command
+
+    data class LongPress(val x: Int?, val y: Int?, val nodeId: String?, val durationMs: Long) : Command
+    data class Drag(val fromX: Int, val fromY: Int, val toX: Int, val toY: Int, val durationMs: Long) : Command
+    data class Pinch(val x: Int, val y: Int, val scale: Double) : Command
+    data class Swipe(val direction: com.hermesandroid.bridge.accessibility.Direction, val distanceFraction: Double) : Command
+    data class Scroll(val direction: com.hermesandroid.bridge.accessibility.Direction, val nodeId: String?) : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */

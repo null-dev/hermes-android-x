@@ -92,6 +92,44 @@ class BridgeServer(
                         )
                     }
                 }
+                post("/long_press") {
+                    val b = gson.fromJson(call.receiveText(), LongPressBody::class.java)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.LongPress(b.x, b.y, b.node_id, b.duration_ms ?: 600)
+                        )
+                    }
+                }
+                post("/drag") {
+                    val b = gson.fromJson(call.receiveText(), DragBody::class.java)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.Drag(b.from_x, b.from_y, b.to_x, b.to_y, b.duration_ms ?: 300)
+                        )
+                    }
+                }
+                post("/pinch") {
+                    val b = gson.fromJson(call.receiveText(), PinchBody::class.java)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(Command.Pinch(b.x, b.y, b.scale))
+                    }
+                }
+                post("/swipe") {
+                    val b = gson.fromJson(call.receiveText(), SwipeBody::class.java)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.Swipe(parseDirection(b.direction), b.distance ?: 0.5)
+                        )
+                    }
+                }
+                post("/scroll") {
+                    val b = gson.fromJson(call.receiveText(), ScrollBody::class.java)
+                    call.guarded {
+                        BridgeAccessibilityService.current()!!.submit(
+                            Command.Scroll(parseDirection(b.direction), b.node_id)
+                        )
+                    }
+                }
             }
         }.also { it.start(wait = false) }
     }
@@ -103,4 +141,12 @@ class BridgeServer(
 
     private data class TapBody(val x: Int?, val y: Int?, val node_id: String?)
     private data class TypeBody(val text: String?, val clear_first: Boolean?)
+    private data class LongPressBody(val x: Int?, val y: Int?, val node_id: String?, val duration_ms: Long?)
+    private data class DragBody(val from_x: Int, val from_y: Int, val to_x: Int, val to_y: Int, val duration_ms: Long?)
+    private data class PinchBody(val x: Int, val y: Int, val scale: Double)
+    private data class SwipeBody(val direction: String, val distance: Double?)
+    private data class ScrollBody(val direction: String, val node_id: String?)
+
+    private fun parseDirection(s: String) =
+        com.hermesandroid.bridge.accessibility.Direction.valueOf(s.uppercase())
 }

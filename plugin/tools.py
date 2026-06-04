@@ -29,6 +29,31 @@ async def android_type(client: AndroidClient, text: str, clear_first: bool = Fal
     return await _run(client.type_text(text, clear_first=clear_first))
 
 
+async def android_long_press(client, x=None, y=None, node_id=None, duration_ms=600):
+    """Long-press by coordinate or node_id."""
+    return await _run(client.long_press(x=x, y=y, node_id=node_id, duration_ms=duration_ms))
+
+
+async def android_drag(client, from_x, from_y, to_x, to_y, duration_ms=300):
+    """Drag from one point to another."""
+    return await _run(client.drag(from_x, from_y, to_x, to_y, duration_ms=duration_ms))
+
+
+async def android_pinch(client, x, y, scale):
+    """Pinch zoom at (x,y); scale<1 zooms out, >1 zooms in."""
+    return await _run(client.pinch(x, y, scale))
+
+
+async def android_swipe(client, direction, distance=0.5):
+    """Swipe up/down/left/right across the screen (distance is a 0..1 fraction)."""
+    return await _run(client.swipe(direction, distance=distance))
+
+
+async def android_scroll(client, direction, node_id=None):
+    """Scroll the screen (or a node) up/down/left/right."""
+    return await _run(client.scroll(direction, node_id=node_id))
+
+
 TOOL_SCHEMAS = [
     {
         "name": "android_ping",
@@ -73,4 +98,31 @@ TOOL_SCHEMAS = [
         },
         "handler": android_type,
     },
+    {"name": "android_long_press", "description": "Long-press by coordinate or node_id.",
+     "parameters": {"type": "object", "properties": {
+         "x": {"type": "integer"}, "y": {"type": "integer"}, "node_id": {"type": "string"},
+         "duration_ms": {"type": "integer", "default": 600}}, "required": []},
+     "handler": android_long_press},
+    {"name": "android_drag", "description": "Drag from one point to another.",
+     "parameters": {"type": "object", "properties": {
+         "from_x": {"type": "integer"}, "from_y": {"type": "integer"},
+         "to_x": {"type": "integer"}, "to_y": {"type": "integer"},
+         "duration_ms": {"type": "integer", "default": 300}},
+         "required": ["from_x", "from_y", "to_x", "to_y"]},
+     "handler": android_drag},
+    {"name": "android_pinch", "description": "Pinch zoom at (x,y); scale<1 out, >1 in.",
+     "parameters": {"type": "object", "properties": {
+         "x": {"type": "integer"}, "y": {"type": "integer"}, "scale": {"type": "number"}},
+         "required": ["x", "y", "scale"]},
+     "handler": android_pinch},
+    {"name": "android_swipe", "description": "Swipe up/down/left/right.",
+     "parameters": {"type": "object", "properties": {
+         "direction": {"type": "string", "enum": ["up", "down", "left", "right"]},
+         "distance": {"type": "number", "default": 0.5}}, "required": ["direction"]},
+     "handler": android_swipe},
+    {"name": "android_scroll", "description": "Scroll the screen or a node.",
+     "parameters": {"type": "object", "properties": {
+         "direction": {"type": "string", "enum": ["up", "down", "left", "right"]},
+         "node_id": {"type": "string"}}, "required": ["direction"]},
+     "handler": android_scroll},
 ]

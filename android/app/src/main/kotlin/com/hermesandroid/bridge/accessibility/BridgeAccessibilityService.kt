@@ -66,6 +66,11 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             }
             is Command.Tap -> actionExecutor.tap(command)
             is Command.Type -> actionExecutor.type(command)
+            is Command.LongPress -> actionExecutor.longPress(command)
+            is Command.Drag -> actionExecutor.drag(command)
+            is Command.Pinch -> actionExecutor.pinch(command)
+            is Command.Swipe -> actionExecutor.swipe(command)
+            is Command.Scroll -> actionExecutor.scroll(command)
         }
     }
 

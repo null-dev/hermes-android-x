@@ -57,4 +57,7 @@ async def test_read_screen_returns_tree(httpx_mock):
 
 def test_schemas_cover_all_tools():
     names = {s["name"] for s in tools.TOOL_SCHEMAS}
-    assert names == {"android_ping", "android_read_screen", "android_tap", "android_type"}
+    assert names == {
+        "android_ping", "android_read_screen", "android_tap", "android_type",
+        "android_long_press", "android_drag", "android_pinch", "android_swipe", "android_scroll",
+    }
