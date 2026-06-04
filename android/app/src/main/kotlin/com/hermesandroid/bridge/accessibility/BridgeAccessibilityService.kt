@@ -43,7 +43,18 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
         ref.set(this)
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) { /* event handling added in plan 5 */ }
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        val e = event ?: return
+        com.hermesandroid.bridge.event.EventBus.events.append(
+            com.hermesandroid.bridge.event.EventRecord(
+                seq = 0,
+                timestamp = System.currentTimeMillis(),
+                type = AccessibilityEvent.eventTypeToString(e.eventType),
+                packageName = e.packageName?.toString(),
+                text = e.text?.joinToString(" ")?.ifBlank { null },
+            )
+        )
+    }
     override fun onInterrupt() { }
 
     override fun onDestroy() {
@@ -115,6 +126,23 @@ class BridgeAccessibilityService : AccessibilityService(), AccessibilityActions 
             is Command.MediaControl -> systemController.media(command)
             is Command.Speak -> systemController.speak(command)
             is Command.SpeakStop -> systemController.stopSpeaking()
+            is Command.Notifications -> CommandResult.Ok(mapOf("notifications" to
+                com.hermesandroid.bridge.event.EventBus.notifications.snapshot().map {
+                    mapOf("package" to it.packageName, "title" to it.title, "text" to it.text, "posted_at" to it.postedAt)
+                }))
+            is Command.Events -> CommandResult.Ok(mapOf("events" to
+                com.hermesandroid.bridge.event.EventBus.events.since(command.since).map {
+                    mapOf("seq" to it.seq, "type" to it.type, "package" to it.packageName, "text" to it.text, "timestamp" to it.timestamp)
+                }))
+            is Command.Widgets -> {
+                val mgr = android.appwidget.AppWidgetManager.getInstance(this)
+                val list = try {
+                    mgr.installedProviders.map {
+                        mapOf("label" to it.loadLabel(packageManager), "package" to it.provider.packageName)
+                    }
+                } catch (e: Exception) { emptyList() }
+                CommandResult.Ok(mapOf("widgets" to list))
+            }
         }
     }
 

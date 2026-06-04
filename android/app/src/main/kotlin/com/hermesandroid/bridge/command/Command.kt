@@ -49,6 +49,10 @@ sealed interface Command {
     data class MediaControl(val action: String) : Command
     data class Speak(val text: String) : Command
     data object SpeakStop : Command
+
+    data object Notifications : Command
+    data class Events(val since: Long) : Command
+    data object Widgets : Command
 }
 
 /** Typed outcome of running a Command. The server maps these onto HTTP responses. */
