@@ -29,6 +29,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnAccessibility).setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
+        findViewById<Button>(R.id.btnAccessibility).setOnLongClickListener {
+            startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
+            true
+        }
         findViewById<Button>(R.id.btnScreenRecord).setOnClickListener {
             com.hermesandroid.bridge.ui.ScreenCaptureActivity.launch(this)
         }

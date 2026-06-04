@@ -10,8 +10,59 @@ Control a paired Android phone over your local network.
 
 The phone must be on the same LAN or VPN as the agent.
 
-## Tools (this build)
+## Tools
+
+### Core / navigation
 - `android_ping` — connectivity + device info
 - `android_read_screen` — accessibility tree (each node has an `id` usable by `android_tap`)
 - `android_tap` — tap by `(x, y)` or `node_id`
 - `android_type` — type into the focused field
+- `android_tap_text` — tap the first node whose text matches a string
+- `android_long_press` — long-press at `(x, y)` or `node_id`
+- `android_drag` — drag from one point to another
+- `android_pinch` — two-finger pinch/zoom gesture
+- `android_swipe` — swipe in a direction or between two points
+- `android_scroll` — scroll a node or the screen
+
+### Screen inspection
+- `android_screenshot` — capture a PNG screenshot
+- `android_screen_record` — record a short screen video
+- `android_find_nodes` — search the accessibility tree by text/class/id
+- `android_describe_node` — get full details for one node by id
+- `android_screen_hash` — 64-bit hash of the current screen content (change detection)
+- `android_diff_screen` — diff two screen hashes / detect changes
+
+### App management
+- `android_open_app` — launch an app by package name
+- `android_press_key` — press a hardware or virtual key (back, home, etc.)
+- `android_current_app` — return the foreground package name
+- `android_get_apps` — list installed apps
+- `android_wait` — wait a specified number of milliseconds
+
+### Clipboard
+- `android_clipboard_read` — read the current clipboard contents
+- `android_clipboard_write` — write text to the clipboard
+
+### Intents & system
+- `android_send_intent` — fire an explicit or implicit `startActivity` intent
+- `android_broadcast` — send a broadcast intent
+
+### Communications
+- `android_send_sms` — send an SMS message
+- `android_call` — initiate a phone call
+- `android_search_contacts` — search the contacts database
+
+### Sensors / media / speech
+- `android_location` — get the current GPS/network location
+- `android_media` — play, pause, or control media playback
+- `android_speak` — speak text via TTS
+- `android_speak_stop` — stop ongoing TTS speech
+
+### Notifications & events
+- `android_notifications` — read current notifications (from `BridgeNotificationListener`)
+- `android_events` — read recent accessibility events newer than a given seq number
+- `android_event_stream` — collect events from the live SSE stream up to a limit
+- `android_widgets` — list installed home-screen widget providers
+
+> Long-press the **Accessibility** button in the app to open Notification access settings
+> (where you enable `BridgeNotificationListener`).
