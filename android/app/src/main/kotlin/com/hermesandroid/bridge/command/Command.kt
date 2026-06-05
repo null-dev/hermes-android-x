@@ -40,7 +40,12 @@ sealed interface Command {
 
     data object ClipboardRead : Command
     data class ClipboardWrite(val text: String) : Command
-    data class SendIntent(val action: String, val data: String?, val extras: Map<String, String>) : Command
+    data class SendIntent(
+        val action: String,
+        val data: String?,
+        val extras: Map<String, String>,
+        val packageName: String?,
+    ) : Command
     data class Broadcast(val action: String, val extras: Map<String, String>) : Command
     data class SendSms(val number: String, val text: String) : Command
     data class Call(val number: String) : Command

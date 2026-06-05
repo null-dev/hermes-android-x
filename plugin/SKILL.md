@@ -79,7 +79,7 @@ For any task, follow this pattern and then STOP:
 - `android_clipboard_write` — write text to the clipboard
 
 ### Intents & system
-- `android_send_intent` — fire an explicit or implicit `startActivity` intent
+- `android_send_intent` — fire an Android intent
 - `android_broadcast` — send a broadcast intent
 
 ### Communications

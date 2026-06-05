@@ -25,6 +25,25 @@ async def test_clipboard_write_posts_text(httpx_mock):
     await client.aclose()
 
 
+async def test_send_intent_posts_target_package(httpx_mock):
+    httpx_mock.add_response(url="http://phone:8765/intent", json={"ok": True, "data": {"sent": True}})
+    client = AndroidClient(cfg())
+    await tools.android_send_intent(
+        client,
+        action="android.intent.action.VIEW",
+        data="https://example.com",
+        extras={"k": "v"},
+        package="com.android.chrome",
+    )
+    assert json.loads(httpx_mock.get_requests()[0].content) == {
+        "action": "android.intent.action.VIEW",
+        "data": "https://example.com",
+        "extras": {"k": "v"},
+        "package_name": "com.android.chrome",
+    }
+    await client.aclose()
+
+
 async def test_location_unavailable_surfaced(httpx_mock):
     httpx_mock.add_response(url="http://phone:8765/location",
                             json={"ok": False, "error": "location_unavailable", "message": "no fix"})

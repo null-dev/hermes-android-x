@@ -150,9 +150,9 @@ async def android_clipboard_write(client, text):
     return await _run(client.clipboard_write(text))
 
 
-async def android_send_intent(client, action, data=None, extras=None):
+async def android_send_intent(client, action, data=None, extras=None, package=None):
     """Send an Android intent."""
-    return await _run(client.send_intent(action, data=data, extras=extras))
+    return await _run(client.send_intent(action, data=data, extras=extras, package=package))
 
 
 async def android_broadcast(client, action, extras=None):
@@ -350,7 +350,8 @@ TOOL_SCHEMAS = [
     {"name": "android_send_intent", "description": "Send an Android intent.",
      "parameters": {"type": "object", "properties": {
          "action": {"type": "string"}, "data": {"type": "string"},
-         "extras": {"type": "object"}}, "required": ["action"]}, "handler": android_send_intent},
+         "extras": {"type": "object"}, "package": {"type": "string"}}, "required": ["action"]},
+     "handler": android_send_intent},
     {"name": "android_broadcast", "description": "Send a broadcast intent.",
      "parameters": {"type": "object", "properties": {
          "action": {"type": "string"}, "extras": {"type": "object"}}, "required": ["action"]},

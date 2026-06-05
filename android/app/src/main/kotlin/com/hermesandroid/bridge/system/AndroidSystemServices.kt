@@ -33,9 +33,15 @@ class AndroidSystemServices(private val context: Context) : SystemServices {
         cm.setPrimaryClip(android.content.ClipData.newPlainText("hermes", text))
     }
 
-    override fun sendIntent(action: String, data: String?, extras: Map<String, String>): Boolean = try {
+    override fun sendIntent(
+        action: String,
+        data: String?,
+        extras: Map<String, String>,
+        packageName: String?,
+    ): Boolean = try {
         val intent = Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         if (data != null) intent.data = Uri.parse(data)
+        if (packageName != null) intent.setPackage(packageName)
         extras.forEach { (k, v) -> intent.putExtra(k, v) }
         context.startActivity(intent)
         true

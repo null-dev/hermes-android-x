@@ -12,7 +12,7 @@ data class GeoLocation(val latitude: Double, val longitude: Double, val accuracy
 interface SystemServices {
     fun readClipboard(): String?
     fun writeClipboard(text: String)
-    fun sendIntent(action: String, data: String?, extras: Map<String, String>): Boolean
+    fun sendIntent(action: String, data: String?, extras: Map<String, String>, packageName: String?): Boolean
     fun sendBroadcast(action: String, extras: Map<String, String>): Boolean
     fun sendSms(number: String, text: String): SmsResult
     fun startCall(number: String): CallResult

@@ -14,7 +14,7 @@ class SystemController(private val sys: SystemServices) {
     }
 
     fun sendIntent(cmd: Command.SendIntent): CommandResult =
-        if (sys.sendIntent(cmd.action, cmd.data, cmd.extras)) CommandResult.Ok(mapOf("sent" to true))
+        if (sys.sendIntent(cmd.action, cmd.data, cmd.extras, cmd.packageName)) CommandResult.Ok(mapOf("sent" to true))
         else CommandResult.Err("intent_failed", "could not start intent ${cmd.action}")
 
     fun broadcast(cmd: Command.Broadcast): CommandResult =

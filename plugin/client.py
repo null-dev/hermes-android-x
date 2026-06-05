@@ -148,8 +148,13 @@ class AndroidClient:
     async def clipboard_write(self, text):
         return await self._request("POST", "/clipboard", json={"text": text})
 
-    async def send_intent(self, action, data=None, extras=None):
-        return await self._request("POST", "/intent", json={"action": action, "data": data, "extras": extras or {}})
+    async def send_intent(self, action, data=None, extras=None, package=None):
+        return await self._request("POST", "/intent", json={
+            "action": action,
+            "data": data,
+            "extras": extras or {},
+            "package_name": package,
+        })
 
     async def broadcast(self, action, extras=None):
         return await self._request("POST", "/broadcast", json={"action": action, "extras": extras or {}})

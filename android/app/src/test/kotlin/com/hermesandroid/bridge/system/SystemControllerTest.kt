@@ -17,9 +17,13 @@ private class FakeSys(
 ) : SystemServices {
     var wroteClip: String? = null
     var lastMedia: MediaAction? = null
+    var lastIntentPackage: String? = null
     override fun readClipboard() = clip
     override fun writeClipboard(text: String) { wroteClip = text }
-    override fun sendIntent(action: String, data: String?, extras: Map<String, String>) = true
+    override fun sendIntent(action: String, data: String?, extras: Map<String, String>, packageName: String?): Boolean {
+        lastIntentPackage = packageName
+        return true
+    }
     override fun sendBroadcast(action: String, extras: Map<String, String>) = true
     override fun sendSms(number: String, text: String) = sms
     override fun startCall(number: String) = call
@@ -77,5 +81,13 @@ class SystemControllerTest {
     @Test fun speakUnavailableErrors() {
         val r = SystemController(FakeSys(ttsOk = false)).speak(Command.Speak("hi"))
         assertEquals("tts_unavailable", (r as CommandResult.Err).error)
+    }
+    @Test fun sendIntentPassesTargetPackage() {
+        val sys = FakeSys()
+        val r = SystemController(sys).sendIntent(
+            Command.SendIntent("android.intent.action.VIEW", null, emptyMap(), "com.android.chrome")
+        )
+        assertTrue(r is CommandResult.Ok)
+        assertEquals("com.android.chrome", sys.lastIntentPackage)
     }
 }

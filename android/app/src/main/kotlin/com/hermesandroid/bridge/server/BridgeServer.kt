@@ -196,7 +196,7 @@ class BridgeServer(
                 post("/intent") {
                     val b = gson.fromJson(call.receiveText(), IntentBody::class.java)
                     call.guarded { BridgeAccessibilityService.current()!!.submit(
-                        Command.SendIntent(b.action, b.data, b.extras ?: emptyMap())) }
+                        Command.SendIntent(b.action, b.data, b.extras ?: emptyMap(), b.package_name)) }
                 }
                 post("/broadcast") {
                     val b = gson.fromJson(call.receiveText(), BroadcastBody::class.java)
@@ -280,7 +280,12 @@ class BridgeServer(
     private data class ScreenRecordBody(val duration_ms: Long?)
 
     private data class TextBody(val text: String)
-    private data class IntentBody(val action: String, val data: String?, val extras: Map<String, String>?)
+    private data class IntentBody(
+        val action: String,
+        val data: String?,
+        val extras: Map<String, String>?,
+        val package_name: String?,
+    )
     private data class BroadcastBody(val action: String, val extras: Map<String, String>?)
     private data class SmsBody(val number: String, val text: String)
     private data class CallBody(val number: String)
